@@ -1,6 +1,22 @@
+from typing import List
+
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from phrases.texts_for_bot_buttons import TEXT_FOR_BUTTON
+
+
+def generation_kb(data_list: List[tuple[str, int]]) -> InlineKeyboardBuilder:
+    """
+    Функция генерации клавиатур с inline кнопками
+    для федеральных округов и регионов.
+    """
+    bt_list = [
+        InlineKeyboardButton(text=x[0], callback_data=str(x[1]))
+        for x in data_list
+    ]
+    builder = InlineKeyboardBuilder().row(*bt_list, width=1)
+    return builder
+
 
 # Создание клавиатуры для хендлера, обрабатывающего команду /start
 bt_ready = InlineKeyboardButton(
@@ -9,6 +25,11 @@ bt_ready = InlineKeyboardButton(
 
 bt_help = InlineKeyboardButton(
     text=TEXT_FOR_BUTTON.get('bot_help'), callback_data='bot_help'
+)
+
+bt_back_to_selection = InlineKeyboardButton(
+    text=TEXT_FOR_BUTTON.get('back_to_selection_f_d'),
+    callback_data='back_to_selection_f_d',
 )
 
 # Создание билдера для хендлера, обрабатывающего команду /start
