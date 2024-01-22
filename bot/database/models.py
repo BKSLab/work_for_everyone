@@ -1,5 +1,10 @@
-from peewee import (CharField, IntegerField, Model, SmallIntegerField,
-                    SqliteDatabase)
+from peewee import (
+    CharField,
+    IntegerField,
+    Model,
+    SmallIntegerField,
+    SqliteDatabase,
+)
 
 db_work_for_everyone = SqliteDatabase('db_for_dev.db')
 

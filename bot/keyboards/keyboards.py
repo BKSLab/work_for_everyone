@@ -32,6 +32,22 @@ bt_back_to_selection = InlineKeyboardButton(
     callback_data='back_to_selection_f_d',
 )
 
+bt_re_enter_data = InlineKeyboardButton(
+    text=TEXT_FOR_BUTTON.get('re_enter_data'),
+    callback_data='re_enter_data',
+)
+
+bt_start_searching = InlineKeyboardButton(
+    text=TEXT_FOR_BUTTON.get('start_searching'),
+    callback_data='start_searching',
+)
+
+# Создание билдера для хендлера, обрабатывающего команду /start
+kb_start_search_or_re_enter_data = InlineKeyboardBuilder()
+kb_start_search_or_re_enter_data.row(
+    bt_re_enter_data, bt_start_searching, width=2
+)
+
 # Создание билдера для хендлера, обрабатывающего команду /start
 kb_start = InlineKeyboardBuilder()
 kb_start.row(bt_ready, bt_help, width=2)
