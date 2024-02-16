@@ -3,8 +3,6 @@ from pathlib import Path
 
 from aiogram.fsm.storage.redis import RedisStorage
 from database.redis import redis
-
-# from aiogram.fsm.storage.memory import MemoryStorage
 from environs import Env
 
 
@@ -25,7 +23,6 @@ def load_config(path: str | None = None) -> Config:
     return Config(
         tg_bot=TgBot(token=env('TOKEN'), storage=RedisStorage(redis=redis))
     )
-    # return Config(tg_bot=TgBot(token=env('TOKEN'), storage=MemoryStorage()))
 
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent

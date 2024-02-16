@@ -6,6 +6,7 @@ from aiogram import Bot, Dispatcher
 from config_data.config import load_config
 from database.views import check_table_region_and_data_exists
 from handlers import applicant_handlers, other_handlers
+from keyboards.menu import set_main_menu
 
 
 async def main() -> None:
@@ -17,7 +18,7 @@ async def main() -> None:
     dp = Dispatcher(storage=config.tg_bot.storage)
 
     dp.include_routers(applicant_handlers.router, other_handlers.router)
-
+    await set_main_menu(bot)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 

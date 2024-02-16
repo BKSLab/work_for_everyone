@@ -1,68 +1,62 @@
 from typing import List
 
 from aiogram.types import InlineKeyboardButton
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-from phrases.texts_for_bot_buttons import TEXT_FOR_BUTTON
+from aiogram.utils.keyboard import InlineKeyboardBuilder, KeyboardBuilder
 
 
-def generation_kb(data_list: List[tuple[str, int]]) -> InlineKeyboardBuilder:
+def generating_pagination_kb(
+    page_number: int, count_pages: int
+) -> KeyboardBuilder[InlineKeyboardButton]:
     """
-    Функция генерации клавиатур с inline кнопками
-    для федеральных округов и регионов.
+    Клавиатура для перемещения между страницами с вакансиями.
     """
+    if page_number == 1:
+        return InlineKeyboardBuilder().row(
+            InlineKeyboardButton(
+                text='Вперёд',
+                callback_data=f'next_{page_number + 1}',
+            )
+        )
+
+    if page_number == count_pages:
+        return InlineKeyboardBuilder().row(
+            InlineKeyboardButton(
+                text='Назад',
+                callback_data=f'back_{page_number - 1}',
+            ),
+            InlineKeyboardButton(
+                text='Перейти в избранное',
+                callback_data='favorites',
+            ),
+            InlineKeyboardButton(
+                text='Ввести данные заново',
+                callback_data='re_enter_data',
+            ),
+            width=2,
+        )
+    return InlineKeyboardBuilder().row(
+        InlineKeyboardButton(
+            text='Назад',
+            callback_data=f'back_{page_number - 1}',
+        ),
+        InlineKeyboardButton(
+            text='Вперёд',
+            callback_data=f'next_{page_number + 1}',
+        ),
+        InlineKeyboardButton(
+            text='Перейти в избранное',
+            callback_data='favorites',
+        ),
+        width=2,
+    )
+
+
+def generation_inline_kb(
+    data_for_buttons: List[tuple], width: int
+) -> KeyboardBuilder[InlineKeyboardButton]:
+    """Функция генерации inline клавиатур на основе полученных данных."""
     bt_list = [
         InlineKeyboardButton(text=x[0], callback_data=str(x[1]))
-        for x in data_list
+        for x in data_for_buttons
     ]
-    builder = InlineKeyboardBuilder().row(*bt_list, width=1)
-    return builder
-
-
-# Создание клавиатуры для хендлера, обрабатывающего команду /start
-bt_ready = InlineKeyboardButton(
-    text=TEXT_FOR_BUTTON.get('ready'), callback_data='ready'
-)
-
-bt_help = InlineKeyboardButton(
-    text=TEXT_FOR_BUTTON.get('bot_help'), callback_data='bot_help'
-)
-
-bt_back_to_selection = InlineKeyboardButton(
-    text=TEXT_FOR_BUTTON.get('back_to_selection_f_d'),
-    callback_data='back_to_selection_f_d',
-)
-
-bt_re_enter_data = InlineKeyboardButton(
-    text=TEXT_FOR_BUTTON.get('re_enter_data'),
-    callback_data='re_enter_data',
-)
-
-bt_start_searching = InlineKeyboardButton(
-    text=TEXT_FOR_BUTTON.get('start_searching'),
-    callback_data='start_searching',
-)
-
-# Создание билдера для хендлера, обрабатывающего команду /start
-kb_start_search_or_re_enter_data = InlineKeyboardBuilder()
-kb_start_search_or_re_enter_data.row(
-    bt_re_enter_data, bt_start_searching, width=2
-)
-
-# Создание билдера для хендлера, обрабатывающего команду /start
-kb_start = InlineKeyboardBuilder()
-kb_start.row(bt_ready, bt_help, width=2)
-
-# Создание билдера для хендлера, обрабатывающего необработанные сообщения
-kb_other = InlineKeyboardBuilder()
-kb_other.row(bt_help)
-
-# Создание клавиатуры для хендлера, обрабатывающего
-# команду /help и нажатие кнопки 'bot_help'
-bt_data_input = InlineKeyboardButton(
-    text=TEXT_FOR_BUTTON.get('data_input'), callback_data='data_input'
-)
-
-# Создание билдера для хендлера, обрабатывающего
-# команду /help и нажатие кнопки 'bot_help'
-kb_data_input = InlineKeyboardBuilder()
-kb_data_input.row(bt_data_input)
+    return InlineKeyboardBuilder().row(*bt_list, width=width)
