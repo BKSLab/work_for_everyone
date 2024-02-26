@@ -53,6 +53,7 @@ router = Router(name=__name__)
 @router.message(CommandStart())
 async def start_command_processing(message: Message, state: FSMContext):
     """Хендлер, срабатывающий на команду /start."""
+    await message.delete()
     await state.clear()
     text = (
         f'<b>{message.from_user.first_name}'
@@ -65,19 +66,18 @@ async def start_command_processing(message: Message, state: FSMContext):
         text=text,
         reply_markup=kb.as_markup(),
     )
-    await message.delete()
 
 
 @router.message(Command(commands='help'))
 async def help_command_processing(message: Message):
     """Хендлер, срабатывающий на команду /help."""
+    await message.delete()
     kb = generation_inline_kb([ButtonData.data_input], 1)
     text = (
         f'{message.from_user.first_name}'
         f'{PHRASES_FOR_MESSAGE.get("help_command")}'
     )
     await message.answer(text=text, reply_markup=kb.as_markup())
-    await message.delete()
 
 
 @router.callback_query(F.data == ButtonData.bot_help[1])
@@ -612,12 +612,13 @@ async def favorites_command_processing(message: Message, state: FSMContext):
     """Хендлер, отвечающий за обработку команды /favorites."""
     vacancies = get_vacancies_from_favorites(message.from_user.id)
     if not vacancies:
+        await message.delete()
         kb = generation_inline_kb([ButtonData.ready, ButtonData.bot_help], 2)
         text = (
             f'{message.from_user.first_name}'
             f'{PHRASES_FOR_MESSAGE.get("no_vacancies_in_favorites")}'
         )
-        await message.edit_text(text=text, reply_markup=kb.as_markup())
+        await message.answer(text=text, reply_markup=kb.as_markup())
         await state.set_state(ApplicantState.federal_district_choice)
     else:
         await message.delete()
@@ -659,6 +660,7 @@ async def favorites_command_processing(message: Message, state: FSMContext):
 @router.message(Command(commands='cancel'))
 async def cancel_command_processing(message: Message, state: FSMContext):
     """Хендлер, отвечающий за обработку команды /cancel."""
+    await message.delete()
     text = (
         f'{message.from_user.first_name}'
         f'{PHRASES_FOR_MESSAGE.get("cancel")}'
@@ -669,3 +671,18 @@ async def cancel_command_processing(message: Message, state: FSMContext):
     )
     await message.answer(text=text, reply_markup=kb.as_markup())
     await state.clear()
+
+
+@router.message(Command(commands='feedback'))
+async def feedback_command_processing(message: Message):
+    """Хендлер, отвечающий за обработку команды /feedback."""
+    await message.delete()
+    text = (
+        f'<b>{message.from_user.first_name}'
+        f'{PHRASES_FOR_MESSAGE.get("feedback")}'
+    )
+    kb = generation_inline_kb(
+        [ButtonData.data_input, ButtonData.bot_help, ButtonData.favorites],
+        2,
+    )
+    await message.answer(text=text, reply_markup=kb.as_markup())

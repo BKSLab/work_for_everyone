@@ -59,9 +59,8 @@ def check_table_region_and_data_exists() -> None:
     если в таблице данные отсутствуют, они будут загружены.
     """
     _database_connection()
-    if not db_work_for_everyone.table_exists(
-        table_name=['region', 'applicant', 'vacancy', 'favorites']
-    ):
+    tables = db_work_for_everyone.get_tables()
+    if not tables:
         db_work_for_everyone.create_tables(
             [Region, Applicant, Vacancy, Favorites]
         )

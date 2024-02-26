@@ -5,13 +5,14 @@ from pathlib import Path
 from aiogram import Bot, Dispatcher
 from config_data.config import load_config
 from database.views import check_table_region_and_data_exists
+from database.create_db import create_db
 from handlers import applicant_handlers, other_handlers
 from keyboards.menu import set_main_menu
 
 
 async def main() -> None:
     config = load_config()
-
+    create_db()
     check_table_region_and_data_exists()
 
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
