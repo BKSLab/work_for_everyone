@@ -7,8 +7,8 @@ from peewee import (
     Model,
     PostgresqlDatabase,
     SmallIntegerField,
+    TextField,
 )
-
 
 env = Env()
 env.read_env()
@@ -61,10 +61,10 @@ class Vacancy(BaseModel):
     id = AutoField(primary_key=True)
     applicant_tg_id = IntegerField(help_text='user id в Telegram')
     vacancy_name = CharField()
-    social_protected = CharField()
+    social_protected = TextField()
     salary = CharField()
     employer_name = CharField()
-    employer_location = CharField()
+    employer_location = TextField()
     employer_email = CharField()
     employer_phone_number = CharField()
     company_code = CharField()
@@ -82,7 +82,7 @@ class Favorites(BaseModel):
     vacancy_name = CharField()
     salary = CharField()
     employer_name = CharField()
-    employer_location = CharField()
+    employer_location = TextField()
     employer_email = CharField()
     employer_phone_number = CharField()
     company_code = CharField()

@@ -154,7 +154,7 @@ async def choice_region_name_processing(
     await state.update_data(region_code=int(callback.data))
     await state.update_data(region_name=region_name)
 
-    if callback.data in ['77', '78']:
+    if callback.data in ['77', '78', '92']:
         await state.update_data(location=region_name)
         entered_data = await state.get_data()
         kb = generation_inline_kb(
@@ -168,7 +168,7 @@ async def choice_region_name_processing(
         await state.set_state(ApplicantState.verification_data)
     else:
         text = (
-            f'{callback.message.chat.first_name}, '
+            f'{callback.message.chat.first_name} '
             f'{PHRASES_FOR_MESSAGE.get("input_name_locality")}'
         )
         await callback.message.edit_text(text=text)
@@ -215,7 +215,7 @@ async def start_searching_vacancies_processing(
     instance = saving_applicant_data(await state.get_data())
     responce = get_data_vacancies_from_api(instance.region.region_code)
     if responce.get('status'):
-        processed_data = preparing_data_for_vacancy_tb(
+        processed_data = await preparing_data_for_vacancy_tb(
             responce.get('data'), instance.location, callback.from_user.id
         )
         if not processed_data.get('status'):
@@ -541,7 +541,9 @@ async def delete_vacancy_from_favorites_processing(
             2,
         )
         text = msg_info_vacancy(vacancy)
-        await callback.message.edit_text(text=text, reply_markup=kb)
+        await callback.message.edit_text(
+            text=text, reply_markup=kb.as_markup()
+        )
     else:
         await callback.message.edit_text(
             f'Вакансия {vacancy_name} удалена из избранного'
@@ -682,7 +684,11 @@ async def feedback_command_processing(message: Message):
         f'{PHRASES_FOR_MESSAGE.get("feedback")}'
     )
     kb = generation_inline_kb(
-        [ButtonData.data_input, ButtonData.bot_help, ButtonData.favorites],
+        [
+            ButtonData.ready_favorites,
+            ButtonData.bot_help,
+            ButtonData.favorites,
+        ],
         2,
     )
     await message.answer(text=text, reply_markup=kb.as_markup())

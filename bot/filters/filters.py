@@ -69,7 +69,10 @@ class NameLocalityFilter(BaseFilter):
     """
 
     async def __call__(self, message: Message) -> Union[bool, dict[str, str]]:
-        if message.text.lower() in ['москва', 'санкт-Петербург']:
+        if (
+            message.text.lower()
+            in ['москва', 'санкт-Петербург', 'Севастополь']
+        ):
             return False
         if '-' in message.text:
             split_message = message.text.split('-')

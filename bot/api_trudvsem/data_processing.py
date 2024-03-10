@@ -18,7 +18,7 @@ def _check_api_responce(response_data: dict) -> bool:
     return False
 
 
-def preparing_data_for_vacancy_tb(
+async def preparing_data_for_vacancy_tb(
     list_vacancies: List[dict], location: str, tg_user_id: int
 ):
     """Обработка полученных данных от api для записи в БД."""
@@ -36,7 +36,7 @@ def preparing_data_for_vacancy_tb(
         for sublist in list_vacancies
         for item in sublist.get('results').get('vacancies')
     ]
-
+    pattern = rf'(?i)\b{location}\b'
     vacancies_lst = []
     for vacancy in vacancy_data:
         vacancy_location = (
@@ -45,7 +45,7 @@ def preparing_data_for_vacancy_tb(
             .get('address')[ParameterRequest.FIRST_ELEMENT_LIST]
             .get('location')
         )
-        if location.lower() in vacancy_location.lower():
+        if re.search(pattern, vacancy_location):
             vacancies_lst.append(
                 {
                     'applicant_tg_id': tg_user_id,
@@ -132,6 +132,5 @@ def preparing_data_one_vacancy(one_vacancy):
         'contact_person': 'Работодатель не указал контактное лицо.'
         if vacancy_data.get('contact_person') is None
         else vacancy_data.get('contact_person'),
-        'creation_date': vacancy_data.get('creation-date'),
     }
     return {'status': True, 'vacancy': vacancy}

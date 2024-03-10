@@ -7,22 +7,29 @@ volumes:
 services:
   db:
     container_name: db_container
-    image: postgres:16.1
+    image: postgres:16-alpine3.19
     env_file: .env
     restart: always
     volumes:
       - pg_bot_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "54321:5432"
+
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 5s
       timeout: 3s
       retries: 3
-  
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=50"
+      - "-c"
+      - "shared_buffers=250MB"
+
   redis:
     container_name: redis_container
-    image: redis:6.0
+    image: redis:7.2-alpine
     env_file: .env
     restart: always
     volumes:
@@ -35,10 +42,11 @@ services:
       interval: 5s
       timeout: 3s
       retries: 3
-  
+
   bot:
     container_name: bot_container
     build: ./bot/
+    # image: bkslab/work_for_everyone:1.01
     env_file: .env
     restart: always
     depends_on:
@@ -46,3 +54,4 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    

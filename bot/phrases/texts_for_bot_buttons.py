@@ -14,20 +14,12 @@ class ButtonData:
         'show_few_vacancies',
     )
     ready: tuple[str, str] = ('Готов начать', 'ready')
+    ready_favorites: tuple[str, str] = ('Поиск вакансий', 'ready')
     bot_help: tuple[str, str] = ('Справка по боту', 'bot_help')
     data_input: tuple[str, str] = ('Начать ввод данных', 'data_input')
     favorites: tuple[str, str] = ('Перейти в избранное', 'favorites')
     re_enter_data: tuple[str, str] = ('Ввести данные заново', 're_enter_data')
-    federal_districts: tuple[
-        tuple[str, int],
-        tuple[str, int],
-        tuple[str, int],
-        tuple[str, int],
-        tuple[str, int],
-        tuple[str, int],
-        tuple[str, int],
-        tuple[str, int],
-    ] = (
+    federal_districts: tuple[tuple[str, int], ...] = (
         ('Центральный федеральный округ', 30),
         ('Северо-Западный федеральный округ', 31),
         ('Приволжский федеральный округ', 33),

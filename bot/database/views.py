@@ -3,6 +3,7 @@ import logging
 import os
 from typing import List, Union
 
+from aiogram import Bot
 from config_data.config import BASE_DIR
 from database.models import (
     Applicant,
@@ -11,6 +12,7 @@ from database.models import (
     Vacancy,
     db_work_for_everyone,
 )
+from environs import Env
 from peewee import ModelSelect
 
 
@@ -137,7 +139,6 @@ def get_vacancies(user_tg_id: int) -> ModelSelect:
 
 
 def check_vacancy_exists(
-    # company_code: str,
     vacancy_id: str,
     user_tg_id: int,
 ) -> bool:
@@ -146,7 +147,6 @@ def check_vacancy_exists(
     query_result = (
         Vacancy.select()
         .where(
-            # Vacancy.company_code == company_code,
             Vacancy.vacancy_id == vacancy_id,
             Vacancy.applicant_tg_id == user_tg_id,
         )
@@ -157,14 +157,12 @@ def check_vacancy_exists(
 
 
 def get_vacancy(
-    # company_code: str,
     vacancy_id: str,
     user_tg_id: int,
 ) -> Vacancy:
     """Проверка наличия вакансии."""
     _database_connection()
     vacancy = Vacancy.get_or_none(
-        # Vacancy.company_code == company_code,
         Vacancy.vacancy_id == vacancy_id,
         Vacancy.applicant_tg_id == user_tg_id,
     )
@@ -222,8 +220,6 @@ def delete_vacancy_from_favorites(
 
 def get_ten_vacancies(user_tg_id: int, page_number: int) -> Vacancy:
     """Получение по десять вакансий для показа пользователю."""
-    # кажды раз при запросе функция должна возвращать список из десяти вакансий
-    # найденных в локации пользователя
     _database_connection()
     vacancies = (
         Vacancy.select()
@@ -248,9 +244,33 @@ def get_vacancy_from_favorites(vacancy_id: str, user_tg_id: int) -> Vacancy:
     """Проверка наличия вакансии в избранном."""
     _database_connection()
     vacancy = Favorites.get_or_none(
-        # Vacancy.company_code == company_code,
         Favorites.vacancy_id == vacancy_id,
         Favorites.applicant_tg_id == user_tg_id,
     )
     _database_close()
     return vacancy
+
+
+async def data_administration(bot: Bot) -> None:
+    """
+    Полное удаление данных о вакансиях.
+    Удаление происходит по рассписанию, один раз в сутки.
+    """
+    _database_connection()
+    unique_users = Applicant.select(Applicant.user_tg_id).distinct().count()
+
+    if Vacancy.get_or_none() is None:
+        text = (
+            'Таблица vacancy на момент удаления была пуста.\n\n'
+            f'Количество уникальных пользователей: {unique_users}'
+        )
+    else:
+        count_deleted_records = Vacancy.delete().execute()
+        text = (
+            f'Данные удалены. Удалено {count_deleted_records} записей.\n\n'
+            f'Количество уникальных пользователей: {unique_users}'
+        )
+    _database_close()
+    env = Env()
+    env.read_env()
+    await bot.send_message(chat_id=env('USER_ID_ADMIN'), text=text)
