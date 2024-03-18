@@ -26,7 +26,11 @@ services:
       - "max_connections=50"
       - "-c"
       - "shared_buffers=250MB"
-
+    deploy:
+      resources:
+        limits:
+          memory: 2GB
+    
   redis:
     container_name: redis_container
     image: redis:7.2-alpine
@@ -45,10 +49,14 @@ services:
 
   bot:
     container_name: bot_container
-    build: ./bot/
-    # image: bkslab/work_for_everyone:1.01
+    # build: ./bot/
+    image: bkslab/work_for_everyone:1.01
     env_file: .env
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2GB
     depends_on:
       db:
         condition: service_healthy

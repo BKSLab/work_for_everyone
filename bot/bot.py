@@ -26,7 +26,7 @@ async def main() -> None:
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
         data_administration,
-        CronTrigger(day_of_week='*', hour=1),
+        CronTrigger(day_of_week='*', hour=23),
         args=(bot,),
     )
     scheduler.start()
@@ -42,6 +42,7 @@ if __name__ == '__main__':
         level=logging.DEBUG,
         filename=(Path(__file__) / 'main.log').name,
         format=('%(asctime)s - %(funcName)s - %(levelname)s - %(message)s'),
+        filemode='w',
         encoding='utf-8',
     )
     asyncio.run(main())

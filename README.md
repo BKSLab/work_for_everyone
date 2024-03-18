@@ -1,6 +1,10 @@
 # Telegram bot "Работа для всех"
 
-**Ссылка на бот:** https://t.me/work_for_all_people_bot
+**Ссылка на бот:** https://t.me/work_for_all_people_bot  
+
+**Презентация проекта на сайте touch-it.ru доступна по ссылке:** https://touch-it.ru/telegram-bot-work-for-everyone-release/  
+**Презентация проекта на кнале в Дзен доступна по ссылке:** https://dzen.ru/a/ZfgAwUd_kxpphX41  
+**Публикации о ходе разработки проекта на сайте touch-it.ru:** https://touch-it.ru/category/telegram-bot/  
 
 ## Примечание!
 Telegram bot находится на стадии тестирования.
@@ -104,7 +108,7 @@ Telegram bot находится на стадии тестирования.
 19. По окончании работы с ботом все данные о найденных вакансиях, которые записывались в БД, кроме вакансий, добавленных в избранное, удаляются. 
 
 
-## Технологии
+## Стэк технологии
 - Python: 3.11
 - Peewee: 3.16.3
 - Aiogram: 3.1.1
@@ -112,9 +116,14 @@ Telegram bot находится на стадии тестирования.
 
 Подробнее с используемыми зависимостями вы можете ознакомиться в файле [requirements.txt](https://github.com/BKSLab/work_for_everyone/blob/main/bot/requirements.txt)
 
+## Deploy проекта на сервере
+- установить Docker и Docker compose
+- создать директорию для проекта, перейти в нее
+- скопировать (создать) файлы: docker-compose.yml и .env (пример файла .env см. в файле [.env.example](https://github.com/BKSLab/work_for_everyone/blob/main/.env.example))
+- поднять docker контейнеры командой docker compose up -d
+
 ## Об авторе проекта
-Меня зовут Барабанщиков Кирилл, я еще только начинаю свой путь в сфере разработки программного обеспечения на языке Python.  
-Этот проект - мой второй шаг. Первый шаг - учеба на python разработчик в Яндекс Практикуме. Это было сложно, но очень интересно!
+Меня зовут Барабанщиков Кирилл, я python backend разработчик.
 
 ## Мои контакты
 - Telegram: https://t.me/Kirill_Barabanshchikov
