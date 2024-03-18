@@ -3,7 +3,7 @@
 **Ссылка на бот:** https://t.me/work_for_all_people_bot  
 
 **Презентация проекта на сайте touch-it.ru доступна по ссылке:** https://touch-it.ru/telegram-bot-work-for-everyone-release/  
-**Презентация проекта на кнале в Дзен доступна по ссылке:** https://dzen.ru/a/ZfgAwUd_kxpphX41  
+**Презентация проекта на канале в Дзен доступна по ссылке:** https://dzen.ru/a/ZfgAwUd_kxpphX41  
 **Публикации о ходе разработки проекта на сайте touch-it.ru:** https://touch-it.ru/category/telegram-bot/  
 
 ## Примечание!
