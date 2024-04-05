@@ -35,6 +35,8 @@ class FederalDistrictFilter(BaseFilter):
     """Фильтр для перехвата номера федерального округа."""
 
     async def __call__(self, callback: CallbackQuery) -> bool:
+        if not callback.data.isdigit():
+            return False
         codes = [code[1] for code in ButtonData.federal_districts]
         if int(callback.data) in codes:
             return True
@@ -50,6 +52,8 @@ class RegionFilter(BaseFilter):
     async def __call__(
         self, callback: CallbackQuery
     ) -> Union[bool, dict[str, str]]:
+        if not callback.data.isdigit():
+            return False
         data_redis = await redis.get(
             f'fsm:{str(callback.from_user.id)}:'
             f'{str(callback.from_user.id)}:data'

@@ -24,10 +24,8 @@ def msg_info_vacancy(vacancy: dict[str, str | int]) -> str:
         f'<b>Должность:</b> {vacancy.get("vacancy_name")}\n\n'
         f'<b>Заработная плата:</b> {vacancy.get("salary")}\n'
         f'<b>Работодатель:</b> {vacancy.get("employer_name")}\n'
-        f'<b>Адрес работодателя:</b> {vacancy.get("employer_location")}\n'
-        f'<b>Номер телефона работодателя:</b> '
+        f'<b>Контактный телефон:</b> '
         f'{vacancy.get("employer_phone_number")}\n'
-        f'<b>Электронная почта:</b> {vacancy.get("employer_email")}\n'
     )
 
 

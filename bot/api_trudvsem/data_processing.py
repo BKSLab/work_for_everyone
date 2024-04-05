@@ -46,6 +46,15 @@ async def preparing_data_for_vacancy_tb(
             .get('location')
         )
         if re.search(pattern, vacancy_location):
+            contact_list = vacancy.get('vacancy').get('contact_list')
+            if contact_list:
+                contact_phone_number = contact_list[
+                    ParameterRequest.FIRST_ELEMENT_LIST
+                ].get('contact_value')
+            else:
+                contact_phone_number = (
+                    'Работодатель не указал контактный номер телефона'
+                )
             vacancies_lst.append(
                 {
                     'applicant_tg_id': tg_user_id,
@@ -67,12 +76,7 @@ async def preparing_data_for_vacancy_tb(
                     if vacancy.get('vacancy').get('company').get('email')
                     is None
                     else vacancy.get('vacancy').get('company').get('email'),
-                    'employer_phone_number': (
-                        'Работодатель не указал номер телефона'
-                    )
-                    if vacancy.get('vacancy').get('company').get('phone')
-                    is None
-                    else vacancy.get('vacancy').get('company').get('phone'),
+                    'employer_phone_number': contact_phone_number,
                     'company_code': vacancy.get('vacancy')
                     .get('company')
                     .get('companycode'),
@@ -97,13 +101,6 @@ def preparing_data_one_vacancy(one_vacancy):
         .get('vacancies')[ParameterRequest.FIRST_ELEMENT_LIST]
         .get('vacancy')
     )
-    contact_list = vacancy_data.get('contact_list')
-    if contact_list:
-        employer_phone_number = contact_list[
-            ParameterRequest.FIRST_ELEMENT_LIST
-        ].get('contact_value')
-    else:
-        employer_phone_number = 'Работодатель не указал номер телефона'
     vacancy = {
         'vacancy_name': vacancy_data.get('job-name'),
         'vacancy_id': vacancy_data.get('id'),
@@ -125,7 +122,12 @@ def preparing_data_one_vacancy(one_vacancy):
         else vacancy_data.get('salary_max'),
         'employer_name': vacancy_data.get('company').get('name'),
         'company_code': vacancy_data.get('company').get('companycode'),
-        'employer_phone_number': employer_phone_number,
+        'employer_phone_number': (
+            'Работодатель не указал свой номер телефона'
+        )
+        if vacancy_data.get('company').get('phone')
+        is None
+        else vacancy_data.get('company').get('phone'),
         'employer_email': 'Работодатель не указал адрес электронной почты.'
         if vacancy_data.get('company').get('email') is None
         else vacancy_data.get('company').get('email'),

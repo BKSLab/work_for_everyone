@@ -1,9 +1,9 @@
 from environs import Env
 from peewee import (
     AutoField,
+    BigIntegerField,
     CharField,
     ForeignKeyField,
-    IntegerField,
     Model,
     PostgresqlDatabase,
     SmallIntegerField,
@@ -47,7 +47,7 @@ class Applicant(BaseModel):
 
     id = AutoField(primary_key=True)
     name_applicant = CharField(help_text='имя соискателя')
-    user_tg_id = IntegerField(help_text='user id в Telegram')
+    user_tg_id = BigIntegerField(help_text='user id в Telegram')
     region = ForeignKeyField(Region, backref='applicants')
     location = CharField(help_text='Наименование населенного пункта.')
 
@@ -59,7 +59,7 @@ class Vacancy(BaseModel):
     """Модель для хранения данных вакансий."""
 
     id = AutoField(primary_key=True)
-    applicant_tg_id = IntegerField(help_text='user id в Telegram')
+    applicant_tg_id = BigIntegerField(help_text='user id в Telegram')
     vacancy_name = CharField()
     social_protected = TextField()
     salary = CharField()
@@ -78,7 +78,7 @@ class Favorites(BaseModel):
     """Модель для хранения данных вакансий в избранном."""
 
     id = AutoField(primary_key=True)
-    applicant_tg_id = IntegerField(help_text='user id в Telegram')
+    applicant_tg_id = BigIntegerField(help_text='user id в Telegram')
     vacancy_name = CharField()
     salary = CharField()
     employer_name = CharField()

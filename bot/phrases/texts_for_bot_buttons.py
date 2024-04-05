@@ -44,3 +44,4 @@ class ButtonData:
         ('/cancel', 'Завершить работу'),
         ('/feedback', 'Обратная связь'),
     )
+    feedback: tuple[str, str] = ('Обратная связь', 'feedback_from_author')

@@ -49,8 +49,8 @@ services:
 
   bot:
     container_name: bot_container
-    # build: ./bot/
-    image: bkslab/work_for_everyone:1.01
+    build: ./bot/
+    # image: bkslab/work_for_everyone:1.01
     env_file: .env
     restart: always
     deploy:

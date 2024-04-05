@@ -60,9 +60,14 @@ async def start_command_processing(message: Message, state: FSMContext):
         f'{PHRASES_FOR_MESSAGE.get("start_command")}'
     )
     kb = generation_inline_kb(
-        [ButtonData.ready, ButtonData.bot_help, ButtonData.favorites], 2
+        [
+            ButtonData.ready,
+            ButtonData.bot_help,
+            ButtonData.favorites,
+            ButtonData.feedback,
+        ], 2
     )
-    await message.answer(
+    return await message.answer(
         text=text,
         reply_markup=kb.as_markup(),
     )
@@ -692,3 +697,23 @@ async def feedback_command_processing(message: Message):
         2,
     )
     await message.answer(text=text, reply_markup=kb.as_markup())
+
+
+@router.callback_query(F.data == ButtonData.feedback[1])
+async def feedback_command_processing(callback: CallbackQuery):
+    """Хендлер, отвечающий за нажатие кнопки 'Обратная связь'."""
+    text = (
+        f'<b>{callback.message.from_user.first_name}'
+        f'{PHRASES_FOR_MESSAGE.get("feedback")}'
+    )
+    kb = generation_inline_kb(
+        [
+            ButtonData.ready_favorites,
+            ButtonData.bot_help,
+            ButtonData.favorites,
+        ],
+        2,
+    )
+    await callback.message.edit_text(
+        text=text, reply_markup=kb.as_markup()
+    )
