@@ -6,8 +6,21 @@ class ButtonData:
     """Данные для создания inline кнопок."""
 
     show_many_vacancies: tuple[str, str] = (
-        'Показать вакансии',
+        'Показать все вакансии',
         'show_many_vacancies_1',
+    )
+    #  добавление данных для кнопки уточненного поиска
+    search_by_vacancies: tuple[str, str] = (
+        'Поиск по ключевому слову',
+        'search_by_vacancies',
+    )
+    show_few_vacancies_by_keyword: tuple[str, str] = (
+        'Показать вакансии',
+        'show_few_vacancies_by_keyword',
+    )
+    show_many_vacancies_by_keyword: tuple[str, str] = (
+        'Показать вакансии',
+        'show-many-vacancies-by-keyword_1',
     )
     show_few_vacancies: tuple[str, str] = (
         'Показать вакансии',

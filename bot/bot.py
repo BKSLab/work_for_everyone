@@ -3,8 +3,8 @@ import logging
 from pathlib import Path
 
 from aiogram import Bot, Dispatcher
-from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 from config_data.config import load_config
 from database.create_db import create_db
 from database.views import (

@@ -130,6 +130,52 @@ def get_count_vacancies(user_tg_id: int) -> int:
     return count_vacancies
 
 
+def get_count_vacancies_by_keyword(user_tg_id: int, keyword: str) -> int:
+    """
+    Подсчет количества найденных в пользовательской локации
+    вакансий по ключевому слову.
+    """
+    _database_connection()
+    count_vacancies = (
+        Vacancy.select()
+        .where(
+            (Vacancy.applicant_tg_id == user_tg_id)
+            & (Vacancy.vacancy_name.contains(keyword))
+        )
+        .count()
+    )
+    _database_close()
+    return count_vacancies
+
+
+def get_vacancies_by_keyword(user_tg_id: int, keyword: str) -> ModelSelect:
+    """Получение вакансий пользователя по ключевому слову."""
+    _database_connection()
+    vacancies_by_keyword = Vacancy.select().where(
+        (Vacancy.applicant_tg_id == user_tg_id)
+        & (Vacancy.vacancy_name.contains(keyword))
+    )
+    _database_close()
+    return vacancies_by_keyword
+
+
+def get_ten_vacancies_by_keyword(
+    user_tg_id: int, page_number: int, keyword: str
+) -> Vacancy:
+    """Получение по десять вакансий для показа пользователю."""
+    _database_connection()
+    vacancies_by_keyword = (
+        Vacancy.select()
+        .where(
+            (Vacancy.applicant_tg_id == user_tg_id)
+            & (Vacancy.vacancy_name.contains(keyword))
+        )
+        .paginate(page_number, 10)
+    )
+    _database_close()
+    return vacancies_by_keyword
+
+
 def get_vacancies(user_tg_id: int) -> ModelSelect:
     """Получение вакансий пользователя."""
     _database_connection()

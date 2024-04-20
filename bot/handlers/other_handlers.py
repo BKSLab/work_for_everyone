@@ -66,7 +66,7 @@ async def send_answer_unprocessed_messages(
         )
         await message.answer(text=text_warning)
         text = (
-            f'{message.from_user.first_name}, '
+            f'{message.from_user.first_name}'
             f'{PHRASES_FOR_MESSAGE.get("input_name_locality")}'
         )
         await message.answer(text=text)

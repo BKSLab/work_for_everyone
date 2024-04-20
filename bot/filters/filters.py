@@ -73,10 +73,11 @@ class NameLocalityFilter(BaseFilter):
     """
 
     async def __call__(self, message: Message) -> Union[bool, dict[str, str]]:
-        if (
-            message.text.lower()
-            in ['москва', 'санкт-Петербург', 'Севастополь']
-        ):
+        if message.text.lower() in [
+            'москва',
+            'санкт-Петербург',
+            'Севастополь',
+        ]:
             return False
         if '-' in message.text:
             split_message = message.text.split('-')
@@ -189,7 +190,7 @@ class DeleteVacancyFavoritesFilterr(BaseFilter):
 
 class ShowManyVacanciesFilterr(BaseFilter):
     """
-    Фильтр для перехвата нажатия кнопок пагинации'.
+    Фильтр для перехвата нажатия кнопок пагинации.
     """
 
     async def __call__(
@@ -198,7 +199,6 @@ class ShowManyVacanciesFilterr(BaseFilter):
         data = callback.data.split('_')
         if not list(set(data) & set(['many', 'next', 'back'])):
             return False
-
         data_redis = await redis.get(
             f'fsm:{str(callback.from_user.id)}:'
             f'{str(callback.from_user.id)}:data'
@@ -219,3 +219,60 @@ class FavoritesFilterr(BaseFilter):
         if callback.data == 'favorites':
             return True
         return False
+
+
+class KeywordFilter(BaseFilter):
+    """
+    Фильтр для обработки введенного пользователем
+    ключевого слова для уточненного поиска вакансий.
+    """
+
+    async def __call__(self, message: Message) -> bool:
+        keyword = message.text
+        data_redis = await redis.get(
+            f'fsm:{str(message.from_user.id)}:'
+            f'{str(message.from_user.id)}:data'
+        )
+        status_keyword = json.loads(data_redis).get('status_keyword')
+        if status_keyword != 1:
+            return False
+        if all(
+            symbol.isspace() or symbol.isalpha() or symbol == '-'
+            for symbol in keyword
+        ) and re.search(r'^[А-Яа-яЁё\s\-]+\Z', keyword):
+            return True
+        return False
+
+
+class ShowManyVacanciesByKeywordFilterr(BaseFilter):
+    """
+    Фильтр для перехвата нажатия кнопок пагинации при
+    показе вакансий, найденных по ключевому слову.
+    """
+
+    async def __call__(
+        self, callback: CallbackQuery
+    ) -> Union[bool, dict[str, int]]:
+        data = callback.data.split('_')
+        if not list(
+            set(data)
+            & set(
+                [
+                    'show-many-vacancies-by-keyword',
+                    'next-keyword',
+                    'back-keyword',
+                ]
+            )
+        ):
+            return False
+        data_redis = await redis.get(
+            f'fsm:{str(callback.from_user.id)}:'
+            f'{str(callback.from_user.id)}:data'
+        )
+        count_pages = ceil(
+            json.loads(data_redis).get('count_vacancies_by_keyword') / 10
+        )
+        page_number = int(data[-1])
+        if 1 > page_number > count_pages:
+            return False
+        return {'page_number': page_number}

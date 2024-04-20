@@ -60,15 +60,15 @@ class Vacancy(BaseModel):
 
     id = AutoField(primary_key=True)
     applicant_tg_id = BigIntegerField(help_text='user id в Telegram')
-    vacancy_name = CharField()
+    vacancy_name = TextField()
     social_protected = TextField()
     salary = CharField()
-    employer_name = CharField()
+    employer_name = TextField()
     employer_location = TextField()
     employer_email = CharField()
     employer_phone_number = CharField()
-    company_code = CharField()
-    vacancy_id = CharField()
+    company_code = TextField()
+    vacancy_id = TextField()
 
     def __str__(self) -> str:
         return f'{self.vacancy_name} с {self.vacancy_id}'
@@ -79,14 +79,14 @@ class Favorites(BaseModel):
 
     id = AutoField(primary_key=True)
     applicant_tg_id = BigIntegerField(help_text='user id в Telegram')
-    vacancy_name = CharField()
+    vacancy_name = TextField()
     salary = CharField()
-    employer_name = CharField()
+    employer_name = TextField()
     employer_location = TextField()
     employer_email = CharField()
     employer_phone_number = CharField()
-    company_code = CharField()
-    vacancy_id = CharField()
+    company_code = TextField()
+    vacancy_id = TextField()
 
     def __str__(self) -> str:
         return f'{self.applicant_tg_id} с {self.vacancy_name}'

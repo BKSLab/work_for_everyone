@@ -17,9 +17,12 @@ from database.views import (
     delete_vacancy_from_favorites,
     deleting_vacancy_data,
     get_count_vacancies,
+    get_count_vacancies_by_keyword,
     get_data_regions,
     get_ten_vacancies,
+    get_ten_vacancies_by_keyword,
     get_vacancies,
+    get_vacancies_by_keyword,
     get_vacancies_from_favorites,
     saving_applicant_data,
     saving_vacancies_data,
@@ -32,13 +35,19 @@ from filters.filters import (
     DetailsFilter,
     FavoritesFilterr,
     FederalDistrictFilter,
+    KeywordFilter,
     NameLocalityFilter,
     RegionFilter,
+    ShowManyVacanciesByKeywordFilterr,
     ShowManyVacanciesFilterr,
     StartDataEntryFilter,
 )
 from fsm.fsm import ApplicantState
-from keyboards.keyboards import generating_pagination_kb, generation_inline_kb
+from keyboards.keyboards import (
+    generating_pagination_kb,
+    generating_pagination_kb_by_keyword,
+    generation_inline_kb,
+)
 from phrases.msg_generation import (
     msg_details_info_vacancy,
     msg_info_vacancy,
@@ -65,7 +74,8 @@ async def start_command_processing(message: Message, state: FSMContext):
             ButtonData.bot_help,
             ButtonData.favorites,
             ButtonData.feedback,
-        ], 2
+        ],
+        2,
     )
     return await message.answer(
         text=text,
@@ -196,7 +206,7 @@ async def local_name_processing(
     await state.update_data(location=locality_name)
     entered_data = await state.get_data()
     kb = generation_inline_kb(
-        [ButtonData.start_searching, ButtonData.re_enter_data], 2
+        [ButtonData.re_enter_data, ButtonData.start_searching], 1
     )
     text = msg_verification(entered_data)
     await message.answer(text=text, reply_markup=kb.as_markup())
@@ -219,6 +229,22 @@ async def start_searching_vacancies_processing(
     )
     instance = saving_applicant_data(await state.get_data())
     responce = get_data_vacancies_from_api(instance.region.region_code)
+    if not responce.get('status'):
+        print('сработало условие, когда статус False')
+        text = (
+            f'{responce.get("error_text")}.\n'
+            'К сожалению, но проблема на стороне сайта Работа России.'
+            'Пожалуйста, обратитесь к владельцу бота'
+        )
+        kb = generation_inline_kb(
+            [
+                ButtonData.feedback,
+            ],
+            1,
+        )
+        await callback.message.edit_text(
+            text=text, reply_markup=kb.as_markup()
+        )
     if responce.get('status'):
         processed_data = await preparing_data_for_vacancy_tb(
             responce.get('data'), instance.location, callback.from_user.id
@@ -228,34 +254,252 @@ async def start_searching_vacancies_processing(
         else:
             deleting_vacancy_data(callback.from_user.id)
             saving_vacancies_data(processed_data.get('vacancies'))
-    else:
-        await callback.message.edit_text(responce.get('error_text'))
-
-    count_vacancies = get_count_vacancies(callback.from_user.id)
-    await state.update_data(count_vacancies=count_vacancies)
-    if count_vacancies == 0:
-        kb = generation_inline_kb([ButtonData.re_enter_data], 1)
-        text = (
-            f'{callback.message.chat.first_name}, '
-            f'{PHRASES_FOR_MESSAGE.get("vacancies_not_found")}'
-            f'{instance.location}'
-        )
-        await callback.message.edit_text(
-            text=text, reply_markup=kb.as_markup()
-        )
-    else:
-        if count_vacancies <= 10:
-            kb = generation_inline_kb([ButtonData.show_few_vacancies], 1)
+        count_vacancies = get_count_vacancies(callback.from_user.id)
+        await state.update_data(count_vacancies=count_vacancies)
+        if count_vacancies == 0:
+            kb = generation_inline_kb([ButtonData.re_enter_data], 1)
+            text = (
+                f'{callback.message.chat.first_name}, '
+                f'{PHRASES_FOR_MESSAGE.get("vacancies_not_found")}'
+                f'{instance.location}'
+            )
+            await callback.message.edit_text(
+                text=text, reply_markup=kb.as_markup()
+            )
         else:
-            kb = generation_inline_kb([ButtonData.show_many_vacancies], 1)
-        text = (
-            f'{str(count_vacancies)}'
-            f'{PHRASES_FOR_MESSAGE.get("show_vacancies")}'
+            if count_vacancies <= 10:
+                kb = generation_inline_kb([ButtonData.show_few_vacancies], 1)
+            else:
+                #  Добавление новой нопки поиска по вакансиям
+                kb = generation_inline_kb(
+                    [
+                        ButtonData.show_many_vacancies,
+                        ButtonData.search_by_vacancies,
+                    ],
+                    1,
+                )
+            text = (
+                f'{str(count_vacancies)}'
+                f'{PHRASES_FOR_MESSAGE.get("show_vacancies")}'
+            )
+            await callback.message.edit_text(
+                text=text, reply_markup=kb.as_markup()
+            )
+            await state.set_state(ApplicantState.show_vacancies_mode)
+
+
+# Блок кода, отвечающий за поиск по ключевому слову
+@router.callback_query(
+    StateFilter(ApplicantState.show_vacancies_mode),
+    F.data == ButtonData.search_by_vacancies[1],
+)
+async def keyword_search_information_processing(
+    callback: CallbackQuery, state: FSMContext
+):
+    """Хендлер, отвечающий за обработку кнопки 'Поиск по ключевому слову'."""
+    await state.update_data(status_keyword=1)
+    text = (
+        f'{callback.message.chat.first_name}'
+        f'{PHRASES_FOR_MESSAGE.get("keyword_search_info")}'
+    )
+    await callback.message.edit_text(text=text)
+    await state.set_state(ApplicantState.show_vacancies_mode)
+
+
+@router.message(
+    StateFilter(ApplicantState.show_vacancies_mode),
+    KeywordFilter(),
+)
+async def search_by_keyword_processing(
+    message: Message,
+    state: FSMContext,
+):
+    """
+    Хендлер, срабатывающий на ввод пользователем ключевого слова
+    для уточненного поиска по вакансиям, добавленным в БД.
+    """
+    await state.update_data(keyword=message.text)
+    await state.update_data(status_keyword=0)
+    count_vacancies_by_keyword = get_count_vacancies_by_keyword(
+        message.from_user.id,
+        message.text,
+    )
+    if count_vacancies_by_keyword == 0:
+        kb = generation_inline_kb(
+            [
+                ButtonData.show_many_vacancies,
+                ButtonData.search_by_vacancies,
+            ],
+            1,
         )
-        await callback.message.edit_text(
-            text=text, reply_markup=kb.as_markup()
+        text = message.from_user.first_name + PHRASES_FOR_MESSAGE.get(
+            'vacancies_not_found_for_keyword'
+        ).format(message.text)
+        await message.answer(text=text, reply_markup=kb.as_markup())
+    if 0 < count_vacancies_by_keyword <= 10:
+        kb = generation_inline_kb(
+            [
+                ButtonData.show_few_vacancies_by_keyword,
+            ],
+            1,
         )
-        await state.set_state(ApplicantState.show_vacancies_mode)
+        text = str(count_vacancies_by_keyword) + PHRASES_FOR_MESSAGE.get(
+            'show_vacancies_by_keyword'
+        ).format(message.text)
+        await message.answer(text=text, reply_markup=kb.as_markup())
+    if count_vacancies_by_keyword > 10:
+        await state.update_data(
+            count_vacancies_by_keyword=count_vacancies_by_keyword
+        )
+        kb = generation_inline_kb(
+            [
+                ButtonData.show_many_vacancies_by_keyword,
+            ],
+            1,
+        )
+        text = str(count_vacancies_by_keyword) + PHRASES_FOR_MESSAGE.get(
+            'show_vacancies_by_keyword'
+        ).format(message.text)
+        await message.answer(text=text, reply_markup=kb.as_markup())
+
+
+@router.callback_query(
+    StateFilter(ApplicantState.show_vacancies_mode),
+    F.data == ButtonData.show_few_vacancies_by_keyword[1],
+)
+async def show_few_vacancies_by_keyword_processing(
+    callback: CallbackQuery,
+    state: FSMContext,
+):
+    """
+    Хендлер, отвечающий за показ пользователю найденных вакансий
+    по введенному ключевому слову,
+    в случае, если их меньше или равно 10.
+    """
+    await callback.answer()
+    user_data = await state.get_data()
+    keyword = user_data.get('keyword')
+    vacancies_by_keyword = get_vacancies_by_keyword(
+        callback.from_user.id, keyword
+    )
+    vacancies_list = [vacancy for vacancy in vacancies_by_keyword.dicts()]
+    for vacancy in vacancies_list:
+        if check_vacancy_favorites_exists(
+            vacancy.get('company_code'),
+            vacancy.get('vacancy_id'),
+            callback.from_user.id,
+        ):
+            kb = generation_inline_kb(
+                [
+                    (
+                        'Удалить из избранного',
+                        f'{vacancy.get("vacancy_id")}_delete',
+                    ),
+                    ('Подробнее', f'{vacancy.get("vacancy_id")}_details'),
+                ],
+                2,
+            )
+        else:
+            kb = generation_inline_kb(
+                [
+                    (
+                        'Добавить в избранное',
+                        f'{vacancy.get("vacancy_id")}_favorites',
+                    ),
+                    ('Подробнее', f'{vacancy.get("vacancy_id")}_details'),
+                ],
+                2,
+            )
+
+        text = msg_info_vacancy(vacancy)
+
+        await callback.message.answer(text=text, reply_markup=kb.as_markup())
+
+    text = (
+        f'{callback.message.chat.first_name}'
+        f'{PHRASES_FOR_MESSAGE.get("show_completed_by_keyword")}'
+    )
+    kb = generation_inline_kb(
+        [
+            ButtonData.favorites,
+            ButtonData.show_many_vacancies,
+            ButtonData.search_by_vacancies,
+        ],
+        2,
+    )
+    await callback.message.answer(text=text, reply_markup=kb.as_markup())
+    await state.set_state(ApplicantState.show_vacancies_mode)
+
+
+@router.callback_query(
+    StateFilter(ApplicantState.show_vacancies_mode),
+    ShowManyVacanciesByKeywordFilterr(),
+)
+async def show_many_vacancies_by_keyword_processing(
+    callback: CallbackQuery,
+    state: FSMContext,
+    page_number: int,
+):
+    """
+    Хендлер, отвечающий за показ пользователю найденных вакансий
+    по введенному ключевому слову,
+    в случае, если их больше 10.
+    """
+    user_data = await state.get_data()
+    keyword = user_data.get('keyword')
+    count_vacancies = get_count_vacancies_by_keyword(
+        callback.from_user.id,
+        keyword,
+    )
+    count_pages = ceil(count_vacancies / 10)
+    vacancies_by_keyword = get_ten_vacancies_by_keyword(
+        callback.from_user.id,
+        page_number,
+        keyword,
+    )
+    vacancies_list = [vacancy for vacancy in vacancies_by_keyword.dicts()]
+    for vacancy in vacancies_list:
+        if check_vacancy_favorites_exists(
+            vacancy.get('company_code'),
+            vacancy.get('vacancy_id'),
+            callback.from_user.id,
+        ):
+            kb = generation_inline_kb(
+                [
+                    (
+                        'Удалить из избранного',
+                        f'{vacancy.get("vacancy_id")}_delete',
+                    ),
+                    ('Подробнее', f'{vacancy.get("vacancy_id")}_details'),
+                ],
+                2,
+            )
+        else:
+            kb = generation_inline_kb(
+                [
+                    (
+                        'Добавить в избранное',
+                        f'{vacancy.get("vacancy_id")}_favorites',
+                    ),
+                    ('Подробнее', f'{vacancy.get("vacancy_id")}_details'),
+                ],
+                2,
+            )
+        text = msg_info_vacancy(vacancy)
+
+        await callback.message.answer(text=text, reply_markup=kb.as_markup())
+    kb = generating_pagination_kb_by_keyword(page_number, count_pages)
+    if page_number == count_pages:
+        vacancies_shown = count_vacancies
+    else:
+        vacancies_shown = 10 * page_number
+    text = (
+        f'{callback.message.chat.first_name}, '
+        f'показано {vacancies_shown} из {count_vacancies} найденных '
+        f'вакансий по ключевому слову: {keyword}'
+    )
+    await callback.message.answer(text=text, reply_markup=kb.as_markup())
+    await state.set_state(ApplicantState.show_vacancies_mode)
 
 
 @router.callback_query(
@@ -305,7 +549,7 @@ async def show_few_vacancies_processing(
         await callback.message.answer(text=text, reply_markup=kb.as_markup())
 
     text = (
-        f'{callback.message.chat.first_name}, '
+        f'{callback.message.chat.first_name}'
         f'{PHRASES_FOR_MESSAGE.get("show_completed")}'
     )
 
@@ -445,7 +689,18 @@ async def show_details_processing(
             )
             await state.set_state(ApplicantState.show_vacancies_mode)
     else:
-        await callback.message.answer(responce.get('error_text'))
+        text = (
+            f'{responce.get("error_text")}.\n'
+            'К сожалению, но проблема на стороне сайта Работа России.'
+            'Пожалуйста, обратитесь к владельцу бота'
+        )
+        kb = generation_inline_kb(
+            [
+                ButtonData.feedback,
+            ],
+            1,
+        )
+        await callback.message.answer(text=text, reply_markup=kb.as_markup())
 
 
 @router.callback_query(
@@ -703,7 +958,7 @@ async def feedback_command_processing(message: Message):
 async def feedback_command_processing(callback: CallbackQuery):
     """Хендлер, отвечающий за нажатие кнопки 'Обратная связь'."""
     text = (
-        f'<b>{callback.message.from_user.first_name}'
+        f'<b>{callback.message.chat.first_name}'
         f'{PHRASES_FOR_MESSAGE.get("feedback")}'
     )
     kb = generation_inline_kb(
@@ -714,6 +969,4 @@ async def feedback_command_processing(callback: CallbackQuery):
         ],
         2,
     )
-    await callback.message.edit_text(
-        text=text, reply_markup=kb.as_markup()
-    )
+    await callback.message.edit_text(text=text, reply_markup=kb.as_markup())

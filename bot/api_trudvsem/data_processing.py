@@ -105,7 +105,9 @@ def preparing_data_one_vacancy(one_vacancy):
         'vacancy_name': vacancy_data.get('job-name'),
         'vacancy_id': vacancy_data.get('id'),
         'social_protected': vacancy_data.get('social_protected'),
-        'duty': re.sub(r"<[^>]+>", "", vacancy_data.get('duty'), flags=re.S),
+        'duty': re.sub(
+            r"<[^>]+>", "", vacancy_data.get('duty'), flags=re.S
+        ).replace('&nbsp', ''),
         'location': vacancy_data.get('addresses')
         .get('address')[ParameterRequest.FIRST_ELEMENT_LIST]
         .get('location'),
@@ -122,11 +124,8 @@ def preparing_data_one_vacancy(one_vacancy):
         else vacancy_data.get('salary_max'),
         'employer_name': vacancy_data.get('company').get('name'),
         'company_code': vacancy_data.get('company').get('companycode'),
-        'employer_phone_number': (
-            'Работодатель не указал свой номер телефона'
-        )
-        if vacancy_data.get('company').get('phone')
-        is None
+        'employer_phone_number': ('Работодатель не указал свой номер телефона')
+        if vacancy_data.get('company').get('phone') is None
         else vacancy_data.get('company').get('phone'),
         'employer_email': 'Работодатель не указал адрес электронной почты.'
         if vacancy_data.get('company').get('email') is None

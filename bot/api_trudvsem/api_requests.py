@@ -12,7 +12,7 @@ def _send_request_to_api(params, region_code):
     )
     if api_response.status_code != requests.codes.ok:
         raise requests.HTTPError(
-            'при запросе сервер вернул код ' f'{api_response.status_code}',
+            'При запросе сервер вернул код ' f'{api_response.status_code}',
         )
     return api_response
 
@@ -25,7 +25,7 @@ def get_data_vacancies_from_api(region_code: int) -> dict:
             region_code,
         )
     except requests.HTTPError as error:
-        return {'status': False, 'error_text': error}
+        return {'status': False, 'error_text': str(error)}
     count_pages = ceil(
         int(api_responce.headers.get('TotalResultCount'))
         / ParameterRequest.VACANCIES_PER_ONE_PAGE
@@ -44,7 +44,7 @@ def get_data_vacancies_from_api(region_code: int) -> dict:
             for page in range(count_pages)
         ]
     except requests.HTTPError as error:
-        return {'status': False, 'error_text': error}
+        return {'status': False, 'error_text': str(error)}
     return {'status': True, 'data': data_vacancies_in_region}
 
 
@@ -56,8 +56,8 @@ def get_data_one_vacancy(company_code, vacancy_id) -> dict:
         )
         if api_responce.status_code != requests.codes.ok:
             raise requests.HTTPError(
-                'при запросе сервер вернул код ' f'{api_responce.status_code}',
+                'При запросе сервер вернул код ' f'{api_responce.status_code}',
             )
     except requests.HTTPError as error:
-        return {'status': False, 'error_text': error}
+        return {'status': False, 'error_text': str(error)}
     return {'status': True, 'data': api_responce.json()}
