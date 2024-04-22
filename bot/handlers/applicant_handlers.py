@@ -183,7 +183,7 @@ async def choice_region_name_processing(
         await state.set_state(ApplicantState.verification_data)
     else:
         text = (
-            f'{callback.message.chat.first_name} '
+            f'{callback.message.chat.first_name}'
             f'{PHRASES_FOR_MESSAGE.get("input_name_locality")}'
         )
         await callback.message.edit_text(text=text)
@@ -230,7 +230,6 @@ async def start_searching_vacancies_processing(
     instance = saving_applicant_data(await state.get_data())
     responce = get_data_vacancies_from_api(instance.region.region_code)
     if not responce.get('status'):
-        print('сработало условие, когда статус False')
         text = (
             f'{responce.get("error_text")}.\n'
             'К сожалению, но проблема на стороне сайта Работа России.'

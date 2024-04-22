@@ -101,13 +101,17 @@ def preparing_data_one_vacancy(one_vacancy):
         .get('vacancies')[ParameterRequest.FIRST_ELEMENT_LIST]
         .get('vacancy')
     )
+    if vacancy_data.get('duty'):
+        duty = re.sub(
+            r"<[^>]+>", "", vacancy_data.get('duty'), flags=re.S
+        ).replace('&nbsp;', '').replace('&nbsp', '')
+    else:
+        duty = 'Работодатель не указал должностные обязанности'
     vacancy = {
         'vacancy_name': vacancy_data.get('job-name'),
         'vacancy_id': vacancy_data.get('id'),
         'social_protected': vacancy_data.get('social_protected'),
-        'duty': re.sub(
-            r"<[^>]+>", "", vacancy_data.get('duty'), flags=re.S
-        ).replace('&nbsp', ''),
+        'duty': duty,
         'location': vacancy_data.get('addresses')
         .get('address')[ParameterRequest.FIRST_ELEMENT_LIST]
         .get('location'),
