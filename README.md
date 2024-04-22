@@ -2,8 +2,9 @@
 
 **Ссылка на бот:** https://t.me/work_for_all_people_bot  
 
+## Публикации о Telegram боте "Работа для всех"
 **Презентация проекта на сайте touch-it.ru доступна поссылке:** https://touch-it.ru/telegram-bot-work-for-everyone-release/  
-**Презентация функции поиска вакансий по ключевому слову:** https://touch-it.ru/telegram-bot-work-for-everyone-search-by-keyword/
+**Презентация функции поиска вакансий по ключевому слову:** https://touch-it.ru/telegram-bot-work-for-everyone-search-by-keyword/  
 **Презентация проекта на канале в Дзен доступна по ссылке:** https://dzen.ru/a/ZfgAwUd_kxpphX41  
 **Публикации о ходе разработки проекта на сайте touch-it.ru:** https://touch-it.ru/category/telegram-bot/  
 
