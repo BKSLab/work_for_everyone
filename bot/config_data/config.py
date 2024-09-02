@@ -25,4 +25,10 @@ def load_config(path: str | None = None) -> Config:
     )
 
 
+env = Env()
+env.read_env()
+
+ADMIN_USER_ID = env('USER_ID_ADMIN')
+ACCESS_TOKEN_HH = env('ACCESS_TOKEN')
+
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent

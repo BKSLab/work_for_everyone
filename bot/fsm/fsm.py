@@ -11,3 +11,4 @@ class ApplicantState(StatesGroup):
     local_name_input = State()
     verification_data = State()
     show_vacancies_mode = State()
+    show_vacancies_msk_spb_mode = State()

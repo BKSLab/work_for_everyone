@@ -5,7 +5,6 @@ env = Env()
 env.read_env()
 redis = Redis(
     host=env('HOST'),
-    # port=6379,
     password=env('PASSWORD_REDIS'),
     decode_responses=True,
 )

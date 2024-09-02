@@ -9,7 +9,22 @@ class ButtonData:
         'Показать все вакансии',
         'show_many_vacancies_1',
     )
-    #  добавление данных для кнопки уточненного поиска
+    search_by_vacancies_msk_spb: tuple[str, str] = (
+        'Поиск по ключевому слову',
+        'search_by_vacancies_msk_spb',
+    )
+    show_vacancies_msk_spb: tuple[str, str] = (
+        'Показать все вакансии',
+        'show-many-vacancies-msk-spb_1',
+    )
+    show_few_vacancies_by_keyword_msk_spb: tuple[str, str] = (
+        'Показать вакансии',
+        'show_few_vacancies_by_keyword_msk_spb',
+    )
+    show_many_vacancies_by_keyword_msk_spb: tuple[str, str] = (
+        'Показать вакансии',
+        'show-many-vacancies-by-keyword-msk-spb_1',
+    )
     search_by_vacancies: tuple[str, str] = (
         'Поиск по ключевому слову',
         'search_by_vacancies',

@@ -22,6 +22,26 @@ def msg_info_vacancy(vacancy: dict[str, str | int]) -> str:
     """
     return (
         f'<b>Должность:</b> {vacancy.get("vacancy_name")}\n\n'
+        f'<b>Источник вакансии:</b> {vacancy.get("vacancy_source")}\n\n'
+        f'<b>Заработная плата:</b> {vacancy.get("salary")}\n'
+        f'<b>Работодатель:</b> {vacancy.get("employer_name")}\n'
+        f'<b>Контактный телефон:</b> '
+        f'{vacancy.get("employer_phone_number")}\n'
+    )
+
+
+def msg_info_vacancy_favorites(
+    vacancy: dict[str, str | int],
+    status_information: str
+) -> str:
+    """
+    Формирование сообщения с краткой информацией о вакансии
+    для показа пользователю в списке вакансий в избранном.
+    """
+    return (
+        f'<b>Статус</b>: {status_information}\n\n'
+        f'<b>Должность:</b> {vacancy.get("vacancy_name")}\n\n'
+        f'<b>Источник вакансии:</b> {vacancy.get("vacancy_source")}\n\n'
         f'<b>Заработная плата:</b> {vacancy.get("salary")}\n'
         f'<b>Работодатель:</b> {vacancy.get("employer_name")}\n'
         f'<b>Контактный телефон:</b> '
@@ -34,17 +54,14 @@ def msg_details_info_vacancy(vacancy: dict[str, str | int]) -> str:
     return (
         '<b>Подробные сведения о вакансии:</b>\n\n'
         f'<b>Должность:</b> {vacancy.get("vacancy_name")}\n'
-        f'<b>Вакансия из категории:</b> {vacancy.get("social_protected")}\n\n'
-        '<b>Данные о заработной плате:</b>\n'
-        f'<b>Минимальная заработная плата:</b> {vacancy.get("salary_min")}\n'
-        f'<b>Максимальный размер заработной платы:</b> '
-        f'{vacancy.get("salary_max")};\n\n'
-        f'<b>Должностные обязанности:</b>\n{vacancy.get("duty")}.\n\n'
+        f'<b>Вакансия для людей с инвалидностью</b>\n\n'
+        f'<b>Источник вакансии:</b> {vacancy.get("vacancy_source")}\n\n'
+        f'<b>Размер заработной платы:</b> {vacancy.get("salary")}\n\n'
+        f'<b>Должностные обязанности:</b>\n{vacancy.get("description")}.\n\n'
         '<b>Информация о работодателе:</b>\n'
         f'<b>Наименование работодателя:</b> {vacancy.get("employer_name")}\n'
-        f'<b>Контактное лицо:</b> {vacancy.get("contact_person")}\n'
         f'<b>Номер телефона работодателя:</b> '
         f'{vacancy.get("employer_phone_number")}\n'
         f'<b>Электронная почта:</b> {vacancy.get("employer_email")}\n'
-        f'<b>Адрес работодателя:</b> {vacancy.get("location")}\n'
+        f'<b>Адрес работодателя:</b> {vacancy.get("employer_location")}\n'
     )
