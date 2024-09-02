@@ -34,13 +34,16 @@ from keyboards.keyboards import (
     generation_inline_kb_with_url,
 )
 from phrases.msg_generation import msg_details_info_vacancy, msg_info_vacancy
-from phrases.phrases_for_bot_messages import BotErrorMessages, BotHandlerMessages
+from phrases.phrases_for_bot_messages import (
+    BotErrorMessages,
+    BotHandlerMessages
+)
 from phrases.texts_for_bot_buttons import ButtonData
+
 
 router = Router(name=__name__)
 
 
-# хендлер переработан
 @router.callback_query(MSKAndSPBFilter())
 async def handle_start_show_vacancies_msk_and_spb_button(
     callback: CallbackQuery, state: FSMContext
@@ -248,7 +251,6 @@ async def handle_show_details_vacancy_msk_spb_button(
                 vacancy_id=vacancy.vacancy_id
             )
             if not result_loading.get('status'):
-                # Блок кода для отправки пользователю сообщения о неудачной работе
                 text = BotErrorMessages.hh_request_error.format(
                     user_name=callback.from_user.first_name
                 )
@@ -517,12 +519,18 @@ async def handle_show_many_vacancies_msk_spb_button(
                             [
                                 (
                                     'Удалить из избранного',
-                                    f'{vacancy.get("vacancy_id")}_mskspb.delete',
+                                    (
+                                        f'{vacancy.get("vacancy_id")}_'
+                                        'mskspb.delete'
+                                    ),
                                     None,
                                 ),
                                 (
                                     'Подробнее',
-                                    f'{vacancy.get("vacancy_id")}_mskspb.details',
+                                    (
+                                        f'{vacancy.get("vacancy_id")}_'
+                                        'mskspb.details'
+                                    ),
                                     None,
                                 ),
                                 (
@@ -540,12 +548,18 @@ async def handle_show_many_vacancies_msk_spb_button(
                             [
                                 (
                                     'Добавить в избранное',
-                                    f'{vacancy.get("vacancy_id")}_mskspb.favorites',
+                                    (
+                                        f'{vacancy.get("vacancy_id")}_'
+                                        'mskspb.favorites'
+                                    ),
                                     None,
                                 ),
                                 (
                                     'Подробнее',
-                                    f'{vacancy.get("vacancy_id")}_mskspb.details',
+                                    (
+                                        f'{vacancy.get("vacancy_id")}_'
+                                        'mskspb.details'
+                                    ),
                                     None,
                                 ),
                                 (

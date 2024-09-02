@@ -85,8 +85,8 @@ def check_received_data_hh(response_data: Optional[dict | Any]) -> dict:
     """
     if not isinstance(response_data, dict):
         logger_api_hh.critical(
-            'При подготовки данных для показа пользователю вакансий, полученных '
-            'от api hh.ru, ожидался словарь с данными вакансии. '
+            'При подготовки данных для показа пользователю вакансий, '
+            'полученных от api hh.ru, ожидался словарь с данными вакансии. '
             f'Однако был получен иной тип данных: {type(response_data)}.'
         )
         return {'status': False}

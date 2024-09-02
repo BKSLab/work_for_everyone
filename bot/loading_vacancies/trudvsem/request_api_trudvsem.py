@@ -2,15 +2,21 @@ import logging
 from math import ceil
 
 import requests
-from loading_vacancies.endpoints import EndpointTrudvsem, ParameterRequestTrudvsem
+from loading_vacancies.endpoints import (
+    EndpointTrudvsem,
+    ParameterRequestTrudvsem
+)
 from loading_vacancies.trudvsem.check_api_trudvsem_responce import (
     check_responce_api_trudvsem_one_vacancy,
 )
 
+
 logger_api_trudvsem = logging.getLogger(__name__)
 
 
-def request_to_api_trudvsem_one_vacancy(company_code: str, vacancy_id: str) -> dict:
+def request_to_api_trudvsem_one_vacancy(
+    company_code: str, vacancy_id: str
+) -> dict:
     """Запрос к api trudvsem.ru на получение данных об одной вакансии."""
     try:
         api_response = requests.get(
@@ -68,8 +74,8 @@ def request_to_api_trudvsem_msk_spb(
         )
     except requests.exceptions as error:
         logger_api_trudvsem.exception(
-            'При запросе к api сайта trudvsem.ru для получения данных о вакансиях '
-            f'в Москве и Санкт-Петербурге, произошла ошибка. '
+            'При запросе к api сайта trudvsem.ru для получения данных о '
+            'вакансиях в Москве и Санкт-Петербурге, произошла ошибка. '
             f'Текст ошибки: {error}. Тип ошибки: {type(error).__name__}.'
         )
         return {'status': False}
@@ -167,7 +173,9 @@ def get_vacancies_trudvsem_msk_spb(
         vacancy_lst = [
             request_to_api_trudvsem_msk_spb(
                 {
-                    'social_protected': ParameterRequestTrudvsem.SOCIAL_PROTECTED,
+                    'social_protected': (
+                        ParameterRequestTrudvsem.SOCIAL_PROTECTED
+                    ),
                     'limit': ParameterRequestTrudvsem.VACANCIES_PER_ONE_PAGE,
                     'offset': page,
                 },
@@ -207,7 +215,9 @@ def get_vacancies_api_trudvsem_user_location(reg_code_trudvsem: str) -> dict:
         vacancy_lst = [
             request_to_api_trudvsem_user_location(
                 {
-                    'social_protected': ParameterRequestTrudvsem.SOCIAL_PROTECTED,
+                    'social_protected': (
+                        ParameterRequestTrudvsem.SOCIAL_PROTECTED
+                    ),
                     'limit': ParameterRequestTrudvsem.VACANCIES_PER_ONE_PAGE,
                     'offset': page,
                 },

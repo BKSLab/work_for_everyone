@@ -40,7 +40,8 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
             'Данные о вакансиях из таблиц vacancy_spb и vacancy_msk '
             'удалены успешно. Всего удалено:\n\n'
             f'Удалено вакансий в Москве: {delete_result.get("count_msk")}\n'
-            f'Удалено вакансий в Санкт-Петербурге: {delete_result.get("count_spb")}'
+            'Удалено вакансий в Санкт-Петербурге: '
+            f'{delete_result.get("count_spb")}'
         )
         logger_load_msk_spb.info(text)
         await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
@@ -77,8 +78,8 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
     # при загрузки и сохранении данных о вакансиях в Санкт-Петербурге
     if not hh_spb_result.get('status'):
         text = (
-            'При загрузке данных о вакансиях с сайта hh.ru в Санкт-Петербурге в '
-            'таблицу vacancy_spb произошла ошибка.'
+            'При загрузке данных о вакансиях с сайта hh.ru в Санкт-Петербурге '
+            'в таблицу vacancy_spb произошла ошибка.'
         )
         logger_load_msk_spb.info(text)
         await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
@@ -120,21 +121,21 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
         await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
 
     await asyncio.sleep(delay=5)
-    # загрузка и сохранение данных о вакансиях в Санкт-Петербурге с сайта trudvsem.ru
     trudvsem_spb_result = load_vacancy_from_trudvsem_spb()
 
     # Отправка администратору бота сообщение о сбое в работе
     # при загрузки и сохранении данных о вакансиях в Санкт-Петербурге
     if not trudvsem_spb_result.get('status'):
         text = (
-            'При загрузке данных о вакансиях в с сайта trudvsem.ru Санкт-Петербургев '
-            'таблицу vacancy_spb произошла ошибка.'
+            'При загрузке данных о вакансиях в с сайта trudvsem.ru '
+            'Санкт-Петербургев таблицу vacancy_spb произошла ошибка.'
         )
         logger_load_msk_spb.info(text)
         await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
 
     # Отправка сообщения администратору бота и логирование в случае,
-    # когда все данные о вакансиях в Санкт-Петербурге были загружены и сохранены в БД
+    # когда все данные о вакансиях в Санкт-Петербурге
+    # были загружены и сохранены в БД
     if trudvsem_spb_result.get('status'):
         text = (
             'Данные о вакансиях в Санкт-Петербурге успешно загружены '

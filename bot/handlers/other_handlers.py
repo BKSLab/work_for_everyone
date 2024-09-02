@@ -5,13 +5,16 @@ from data_operations.get_data import get_data_lst_regions
 from fsm.fsm import ApplicantState
 from keyboards.keyboards import generation_inline_kb
 from phrases.msg_generation import msg_verification
-from phrases.phrases_for_bot_messages import BotErrorMessages, BotHandlerMessages
+from phrases.phrases_for_bot_messages import (
+    BotErrorMessages,
+    BotHandlerMessages
+)
 from phrases.texts_for_bot_buttons import ButtonData
 
 
 router = Router(name=__name__)
 
-# хендлер переработан
+
 @router.message()
 async def send_answer_unprocessed_messages(
     message: Message, state: FSMContext
@@ -33,7 +36,6 @@ async def send_answer_unprocessed_messages(
         )
         await message.answer(text=text)
         kb = generation_inline_kb([*ButtonData.federal_districts], 1)
-        
         text = BotHandlerMessages.choice_federal_districts.format(
             user_name=message.from_user.first_name
         )

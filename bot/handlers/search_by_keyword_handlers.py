@@ -4,24 +4,33 @@ from aiogram import F, Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
-from filters.keyword_filters import KeywordFilter, ShowManyVacanciesByKeywordFilterr
+from filters.keyword_filters import (
+    KeywordFilter,
+    ShowManyVacanciesByKeywordFilterr
+)
 from data_operations.check_data import check_vacancy_favorites_exists
-from data_operations.get_data import (get_count_vacancies_by_keyword, get_ten_vacancies_by_keyword,
-                                      get_vacancies_by_keyword,
-                                      )
+from data_operations.get_data import (
+    get_count_vacancies_by_keyword,
+    get_ten_vacancies_by_keyword,
+    get_vacancies_by_keyword,
+)
 from fsm.fsm import ApplicantState
-from keyboards.keyboards import (generating_pagination_kb_by_keyword,
-                                 generation_inline_kb,
-                                 generation_inline_kb_with_url)
+from keyboards.keyboards import (
+    generating_pagination_kb_by_keyword,
+    generation_inline_kb,
+    generation_inline_kb_with_url
+)
 from phrases.msg_generation import msg_info_vacancy
-from phrases.phrases_for_bot_messages import BotErrorMessages, BotHandlerMessages
+from phrases.phrases_for_bot_messages import (
+    BotErrorMessages,
+    BotHandlerMessages
+)
 from phrases.texts_for_bot_buttons import ButtonData
 
 
 router = Router(name=__name__)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode),
     F.data == ButtonData.search_by_vacancies[1],
@@ -39,7 +48,6 @@ async def handle_keyword_search_information_button(
     await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.message(
     StateFilter(ApplicantState.show_vacancies_mode),
     KeywordFilter(),
@@ -115,7 +123,6 @@ async def handle_search_by_keyword_button(
             await message.answer(text=text, reply_markup=kb.as_markup())
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode),
     F.data == ButtonData.show_few_vacancies_by_keyword[1],
@@ -239,7 +246,6 @@ async def handle_show_few_vacancies_by_keyword_button(
         await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode),
     ShowManyVacanciesByKeywordFilterr(),

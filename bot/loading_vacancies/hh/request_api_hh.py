@@ -52,7 +52,7 @@ def request_to_api_hh_one_vacancy(vacancy_id: str) -> dict:
         )
         return {'status': False}
     return {
-        'status: True,
+        'status': True,
         'data': api_response_dict,
     }
 
@@ -64,7 +64,8 @@ def request_to_api_hh_msk_spb(
     page: int = 0,
 ):
     """
-    Запрос к api hh.ru на получение данных о вакансиях в Москве и Санкт-Петербурге.
+    Запрос к api hh.ru на получение данных о вакансиях
+    в Москве и Санкт-Петербурге.
     """
     # Токен передается в заголовке запроса
     headers = {'Authorization': f'Bearer {ACCESS_TOKEN_HH}'}
@@ -258,7 +259,9 @@ def get_vacancies_hh_msk_spb(
     return {'status': True, 'vacancy_lst': vacancy_lst}
 
 
-def get_vacancies_api_hh_user_location(reg_code_hh: str, user_location: str) -> dict:
+def get_vacancies_api_hh_user_location(
+    reg_code_hh: str, user_location: str
+) -> dict:
     """
     Получение и обработка данных в пользовательской локации от api hh.ru.
     """

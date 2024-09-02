@@ -13,7 +13,10 @@ from data_operations.get_data import (
     get_one_vacancy,
     get_ten_vacancies,
 )
-from data_operations.save_data import saving_applicant_data, saving_vacancy_favorites
+from data_operations.save_data import (
+    saving_applicant_data,
+    saving_vacancy_favorites
+)
 from filters.favorites_filters import AddVacancyFavoritesFilterr
 from filters.main_filters import (
     CollapseDetailedFilter,
@@ -48,13 +51,10 @@ from phrases.phrases_for_bot_messages import (
 )
 from phrases.texts_for_bot_buttons import ButtonData
 
+
 router = Router(name=__name__)
 
 
-# handle_favorites_button
-
-
-# хендлер переработан
 @router.callback_query(F.data == ButtonData.bot_help[1])
 async def handle_bot_help_button(callback: CallbackQuery):
     """Хендлер, срабатывающий на кнопку 'Справка по боту'."""
@@ -66,7 +66,6 @@ async def handle_bot_help_button(callback: CallbackQuery):
     await callback.message.edit_text(text=text, reply_markup=kb.as_markup())
 
 
-# хендлер переработан
 @router.callback_query(StartDataEntryFilter())
 async def handle_start_data_entry_button(
     callback: CallbackQuery,
@@ -88,7 +87,6 @@ async def handle_start_data_entry_button(
     await state.set_state(ApplicantState.federal_district_choice)
 
 
-# хендлер переработан, нужно добавить безопасное извлечение данных из БД
 @router.callback_query(
     StateFilter(ApplicantState.federal_district_choice),
     FederalDistrictFilter(),
@@ -105,20 +103,28 @@ async def handle_federal_district_button(
     await callback.answer()
     await state.update_data(fd_code=int(callback.data))
 
-    # доработать запрос к БД, привести его к безопасному варианту
-    data = get_data_lst_regions(callback.data)
-    data.append(ButtonData.back_to_selection_f_d)
+    result = get_data_lst_regions(callback.data)
+    if not result.get('status'):
+        text = BotErrorMessages.data_error.format(
+            user_name=callback.from_user.first_name
+        )
+    else:
+        data = result.get('data_regions')
+        data.append(ButtonData.back_to_selection_f_d)
 
-    text = BotHandlerMessages.choice_region_name.format(
-        user_name=callback.from_user.first_name
-    )
-    kb = generation_inline_kb(data, 1)
-    await callback.message.edit_text(text=text, reply_markup=kb.as_markup())
-    await state.set_state(ApplicantState.region_name_choice)
+        text = BotHandlerMessages.choice_region_name.format(
+            user_name=callback.from_user.first_name
+        )
+        kb = generation_inline_kb(data, 1)
+        await callback.message.edit_text(
+            text=text, reply_markup=kb.as_markup()
+        )
+        await state.set_state(ApplicantState.region_name_choice)
 
 
-# хендлер переработан
-@router.callback_query(StateFilter(ApplicantState.region_name_choice), RegionFilter())
+@router.callback_query(
+    StateFilter(ApplicantState.region_name_choice), RegionFilter()
+)
 async def handle_region_name_button(
     callback: CallbackQuery,
     state: FSMContext,
@@ -152,7 +158,6 @@ async def handle_region_name_button(
         await state.set_state(ApplicantState.local_name_input)
 
 
-# хендлер переработан
 @router.message(
     StateFilter(ApplicantState.local_name_input),
     NameLocalityFilter(),
@@ -169,12 +174,13 @@ async def handle_locality_name_input(
     await state.update_data(location=locality_name)
     entered_data = await state.get_data()
     text = msg_verification(entered_data)
-    kb = generation_inline_kb([ButtonData.re_enter_data, ButtonData.start_searching], 1)
+    kb = generation_inline_kb(
+        [ButtonData.re_enter_data, ButtonData.start_searching], 1
+    )
     await message.answer(text=text, reply_markup=kb.as_markup())
     await state.set_state(ApplicantState.verification_data)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.verification_data),
     F.data == ButtonData.start_searching[1],
@@ -242,11 +248,15 @@ async def handle_start_search_vacancies_button(
                 user_name=callback.from_user.first_name,
                 total_vacancies=str(result_operation.get("total_vacancies")),
                 user_location=aplicant_instance.location,
-                count_vacancy_trudvsem=str(result_operation.get("count_vacancy_trudvsem")),
+                count_vacancy_trudvsem=str(
+                    result_operation.get("count_vacancy_trudvsem")
+                ),
                 count_vacancy_hh=str(result_operation.get("count_vacancy_hh")),
             )
             kb = generation_inline_kb([ButtonData.show_few_vacancies], 1)
-            await callback.message.edit_text(text=text, reply_markup=kb.as_markup())
+            await callback.message.edit_text(
+                text=text, reply_markup=kb.as_markup()
+            )
             await state.set_state(ApplicantState.show_vacancies_mode)
 
         if (
@@ -260,7 +270,9 @@ async def handle_start_search_vacancies_button(
                 user_name=callback.from_user.first_name,
                 total_vacancies=str(result_operation.get("total_vacancies")),
                 user_location=aplicant_instance.location,
-                count_vacancy_trudvsem=str(result_operation.get("count_vacancy_trudvsem")),
+                count_vacancy_trudvsem=str(
+                    result_operation.get("count_vacancy_trudvsem")
+                ),
                 count_vacancy_hh=str(result_operation.get("count_vacancy_hh")),
             )
             kb = generation_inline_kb(
@@ -276,7 +288,6 @@ async def handle_start_search_vacancies_button(
             await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode),
     F.data == ButtonData.show_few_vacancies[1],
@@ -374,7 +385,9 @@ async def handle_show_few_vacancies_button(
                     )
 
             text = msg_info_vacancy(vacancy)
-            await callback.message.answer(text=text, reply_markup=kb.as_markup())
+            await callback.message.answer(
+                text=text, reply_markup=kb.as_markup()
+            )
 
         text = BotHandlerMessages.show_completed.format(
             user_name=callback.from_user.first_name
@@ -386,7 +399,6 @@ async def handle_show_few_vacancies_button(
         await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode), ShowManyVacanciesFilterr()
 )
@@ -503,7 +515,9 @@ async def handle_show_many_vacancies_button(
                         )
 
                 text = msg_info_vacancy(vacancy)
-                await callback.message.answer(text=text, reply_markup=kb.as_markup())
+                await callback.message.answer(
+                    text=text, reply_markup=kb.as_markup()
+                )
             kb = generating_pagination_kb(page_number, count_pages)
             if page_number == count_pages:
                 vacancies_shown = count_vacancies
@@ -520,7 +534,6 @@ async def handle_show_many_vacancies_button(
             await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан, проверить формирование последнего сообщения
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode), DetailsFilter()
 )
@@ -556,7 +569,6 @@ async def handle_show_details_button(
                 company_code=vacancy.company_code,
             )
             if not result_loading.get("status"):
-                # Блок кода для отправки пользователю сообщения о неудачной работе
                 text = BotErrorMessages.trudvsem_request_error.format(
                     user_name=callback.from_user.first_name
                 )
@@ -573,9 +585,10 @@ async def handle_show_details_button(
                 vacancy = result_loading.get("vacancy")
 
         if vacancy_source == "hh.ru":
-            result_loading = await load_one_vacancy_hh(vacancy_id=vacancy.vacancy_id)
+            result_loading = await load_one_vacancy_hh(
+                vacancy_id=vacancy.vacancy_id
+            )
             if not result_loading.get("status"):
-                # Блок кода для отправки пользователю сообщения о неудачной работе
                 text = BotErrorMessages.hh_request_error.format(
                     user_name=callback.from_user.first_name
                 )
@@ -623,7 +636,9 @@ async def handle_show_details_button(
                             None,
                         ),
                         (
-                            "Откликнуться на {}".format(vacancy.get("vacancy_source")),
+                            "Откликнуться на {}".format(
+                                vacancy.get("vacancy_source")
+                            ),
                             None,
                             vacancy.get("vacancy_url"),
                         ),
@@ -644,7 +659,9 @@ async def handle_show_details_button(
                             None,
                         ),
                         (
-                            "Откликнуться на {}".format(vacancy.get("vacancy_source")),
+                            "Откликнуться на {}".format(
+                                vacancy.get("vacancy_source")
+                            ),
                             None,
                             vacancy.get("vacancy_url"),
                         ),
@@ -652,11 +669,12 @@ async def handle_show_details_button(
                     2,
                 )
         text = msg_details_info_vacancy(vacancy)
-        await callback.message.edit_text(text=text, reply_markup=kb.as_markup())
+        await callback.message.edit_text(
+            text=text, reply_markup=kb.as_markup()
+        )
         await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode),
     CollapseDetailedFilter(),
@@ -718,7 +736,9 @@ async def handle_collapse_details_button(
                             None,
                         ),
                         (
-                            "Откликнуться на {}".format(vacancy.vacancy_source),
+                            "Откликнуться на {}".format(
+                                vacancy.vacancy_source
+                            ),
                             None,
                             vacancy.vacancy_url,
                         ),
@@ -739,7 +759,9 @@ async def handle_collapse_details_button(
                             None,
                         ),
                         (
-                            "Откликнуться на {}".format(vacancy.vacancy_source),
+                            "Откликнуться на {}".format(
+                                vacancy.vacancy_source
+                            ),
                             None,
                             vacancy.vacancy_url,
                         ),
@@ -747,11 +769,12 @@ async def handle_collapse_details_button(
                     2,
                 )
         text = msg_info_vacancy(vacancy.__dict__.get("__data__"))
-        await callback.message.edit_text(text=text, reply_markup=kb.as_markup())
+        await callback.message.edit_text(
+            text=text, reply_markup=kb.as_markup()
+        )
         await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode),
     AddVacancyFavoritesFilterr(),
@@ -810,7 +833,9 @@ async def handle_add_vacancy_favorites_button(
                         None,
                     ),
                     (
-                        "Откликнуться на {}".format(saved_vacancy.vacancy_source),
+                        "Откликнуться на {}".format(
+                            saved_vacancy.vacancy_source
+                        ),
                         None,
                         saved_vacancy.vacancy_url,
                     ),
@@ -826,7 +851,6 @@ async def handle_add_vacancy_favorites_button(
             await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode),
     DeleteVacancyFilterr(),
@@ -901,7 +925,6 @@ async def handle_delete_vacancy_from_favorites_button(
             await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.callback_query(F.data == ButtonData.feedback[1])
 async def handle_feedback_button(callback: CallbackQuery):
     """Хендлер, отвечающий за нажатие кнопки 'Обратная связь'."""

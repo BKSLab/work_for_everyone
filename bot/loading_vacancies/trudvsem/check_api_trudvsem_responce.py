@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Optional
 
+
 logger_api_trudvsem = logging.getLogger(__name__)
 
 
@@ -41,9 +42,10 @@ def check_received_data_trudvsem(response_data: Any) -> dict[str, bool]:
     """
     if not isinstance(response_data, dict):
         logger_api_trudvsem.critical(
-            'При подготовки данных для показа пользователю вакансий, полученных '
-            'от api trudvsem.ru, ожидался словарь с данными вакансии. '
-            f'Однако был получен иной тип данных: {type(response_data)}.'
+            'При подготовки данных для показа пользователю '
+            'вакансий, от api trudvsem.ru, ожидался словарь с данными '
+            'вакансии. Однако был получен иной тип данных: '
+            f'{type(response_data)}.'
         )
         return {'status': False}
 

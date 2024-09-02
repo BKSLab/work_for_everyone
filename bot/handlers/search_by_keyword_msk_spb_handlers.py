@@ -7,23 +7,31 @@ from aiogram.types import CallbackQuery, Message
 from data_operations.check_data import check_vacancy_favorites_exists
 from data_operations.get_msk_spb_data import (
     get_count_vacancies_by_keyword_msk_spb,
-    get_ten_vacancies_by_keyword_msk_spb, get_vacancies_by_keyword_msk_spb)
+    get_ten_vacancies_by_keyword_msk_spb,
+    get_vacancies_by_keyword_msk_spb
+)
 from database.models import VacancyMSK, VacancySPB
-from filters.keyword_filters import (KeywordMSKSPBFilter,
-                             ShowManyVacanciesByKeywordMSKSPBFilterr)
+from filters.keyword_filters import (
+    KeywordMSKSPBFilter,
+    ShowManyVacanciesByKeywordMSKSPBFilterr
+)
 from fsm.fsm import ApplicantState
-from keyboards.keyboards import (generating_pagination_kb_by_keyword_msk_spb,
-                                 generation_inline_kb,
-                                 generation_inline_kb_with_url)
+from keyboards.keyboards import (
+    generating_pagination_kb_by_keyword_msk_spb,
+    generation_inline_kb,
+    generation_inline_kb_with_url
+)
 from phrases.msg_generation import msg_info_vacancy
-from phrases.phrases_for_bot_messages import BotErrorMessages, BotHandlerMessages
+from phrases.phrases_for_bot_messages import (
+    BotErrorMessages,
+    BotHandlerMessages
+)
 from phrases.texts_for_bot_buttons import ButtonData
 
 
 router = Router(name=__name__)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_msk_spb_mode),
     F.data == ButtonData.search_by_vacancies_msk_spb[1],
@@ -41,7 +49,6 @@ async def handle_keyword_search_msk_spb_info_button(
     await state.set_state(ApplicantState.show_vacancies_msk_spb_mode)
 
 
-# хендлер переработан
 @router.message(
     StateFilter(ApplicantState.show_vacancies_msk_spb_mode),
     KeywordMSKSPBFilter(),
@@ -121,7 +128,6 @@ async def handle_search_by_keyword_msk_spb_button(
             await message.answer(text=text, reply_markup=kb.as_markup())
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_msk_spb_mode),
     F.data == ButtonData.show_few_vacancies_by_keyword_msk_spb[1],
@@ -208,7 +214,10 @@ async def handle_show_few_vacancies_by_keyword_msk_spb_button(
                         [
                             (
                                 'Добавить в избранное',
-                                f'{vacancy.get("vacancy_id")}_mskspb.favorites',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'mskspb.favorites'
+                                ),
                                 None,
                             ),
                             (
@@ -248,7 +257,6 @@ async def handle_show_few_vacancies_by_keyword_msk_spb_button(
         await state.set_state(ApplicantState.show_vacancies_msk_spb_mode)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_msk_spb_mode),
     ShowManyVacanciesByKeywordMSKSPBFilterr(),
@@ -336,12 +344,18 @@ async def handle_show_many_vacancies_by_keyword_msk_spb_button(
                             [
                                 (
                                     'Удалить из избранного',
-                                    f'{vacancy.get("vacancy_id")}_mskspb.delete',
+                                    (
+                                        f'{vacancy.get("vacancy_id")}_'
+                                        'mskspb.delete'
+                                    ),
                                     None,
                                 ),
                                 (
                                     'Подробнее',
-                                    f'{vacancy.get("vacancy_id")}_mskspb.details',
+                                    (
+                                        f'{vacancy.get("vacancy_id")}_'
+                                        'mskspb.details'
+                                    ),
                                     None,
                                 ),
                                 (
@@ -359,12 +373,18 @@ async def handle_show_many_vacancies_by_keyword_msk_spb_button(
                             [
                                 (
                                     'Добавить в избранное',
-                                    f'{vacancy.get("vacancy_id")}_mskspb.favorites',
+                                    (
+                                        f'{vacancy.get("vacancy_id")}_'
+                                        'mskspb.favorites'
+                                    ),
                                     None,
                                 ),
                                 (
                                     'Подробнее',
-                                    f'{vacancy.get("vacancy_id")}_mskspb.details',
+                                    (
+                                        f'{vacancy.get("vacancy_id")}_'
+                                        'mskspb.details'
+                                    ),
                                     None,
                                 ),
                                 (
@@ -383,7 +403,9 @@ async def handle_show_many_vacancies_by_keyword_msk_spb_button(
                     text=text, reply_markup=kb.as_markup()
                 )
 
-            kb = generating_pagination_kb_by_keyword_msk_spb(page_number, count_pages)
+            kb = generating_pagination_kb_by_keyword_msk_spb(
+                page_number, count_pages
+            )
             if page_number == count_pages:
                 vacancies_shown = count_vacancies
             else:

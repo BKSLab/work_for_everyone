@@ -3,8 +3,16 @@ from data_operations.get_data import get_count_vacancies_user_location
 from data_operations.get_msk_spb_data import get_count_vacancies_msk_spb
 from data_operations.save_data import saving_vacancies_big_data
 from loading_vacancies.endpoints import ParameterRequestTrudvsem
-from loading_vacancies.trudvsem.data_processing_trudvsem import parce_vacancies_msk_spb_trudvsem, parce_vacancies_user_location_trudvsem, parce_vacancy_trudvsem
-from loading_vacancies.trudvsem.request_api_trudvsem import get_one_vacancy_trudvsem, get_vacancies_api_trudvsem_user_location, get_vacancies_trudvsem_msk_spb, request_to_api_trudvsem_msk_spb
+from loading_vacancies.trudvsem.data_processing_trudvsem import (
+    parce_vacancies_msk_spb_trudvsem,
+    parce_vacancies_user_location_trudvsem,
+    parce_vacancy_trudvsem
+)
+from loading_vacancies.trudvsem.request_api_trudvsem import (
+    get_one_vacancy_trudvsem,
+    get_vacancies_api_trudvsem_user_location,
+    get_vacancies_trudvsem_msk_spb,
+)
 from database.models import Vacancy, VacancyMSK, VacancySPB
 
 

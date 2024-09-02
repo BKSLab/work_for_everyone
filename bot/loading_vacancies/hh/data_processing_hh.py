@@ -36,7 +36,10 @@ def parce_vacancies_msk_spb_hh(
             and vacancy.get('salary').get('from')
             and vacancy.get('salary').get('to')
         ):
-            salary = f'от {vacancy.get("salary").get("from")} до {vacancy.get("salary").get("to")}'
+            salary = (
+                f'от {vacancy.get("salary").get("from")} '
+                f'до {vacancy.get("salary").get("to")}'
+            )
         employer_name = (
             vacancy.get('employer')
             .get('name')
@@ -176,7 +179,10 @@ async def parce_vacancies_user_location_hh(
             and vacancy.get('salary').get('from')
             and vacancy.get('salary').get('to')
         ):
-            salary = f'от {vacancy.get("salary").get("from")} до {vacancy.get("salary").get("to")}'
+            salary = (
+                f'от {vacancy.get("salary").get("from")} '
+                f'до {vacancy.get("salary").get("to")}'
+            )
         employer_name = (
             vacancy.get('employer')
             .get('name')

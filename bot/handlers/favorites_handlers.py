@@ -3,18 +3,26 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from data_operations.delete_data import delete_vacancy_from_favorites
-from data_operations.get_data import (get_one_vacancy_from_favorites,
-                                      get_vacancies_from_favorites)
-from filters.favorites_filters import (CollapseDetailedFavoritesFilter,
-                                       DeleteVacancyFavoritesFilterr,
-                                       DetailsFavoritesFilter)
+from data_operations.get_data import (
+    get_one_vacancy_from_favorites,
+    get_vacancies_from_favorites
+)
+from filters.favorites_filters import (
+    CollapseDetailedFavoritesFilter,
+    DeleteVacancyFavoritesFilterr,
+    DetailsFavoritesFilter
+)
 from fsm.fsm import ApplicantState
-from keyboards.keyboards import (generation_inline_kb,
-                                 generation_inline_kb_with_url)
+from keyboards.keyboards import (
+    generation_inline_kb,
+    generation_inline_kb_with_url
+)
 from loading_vacancies.load_vacancies_hh import load_one_vacancy_hh
 from loading_vacancies.load_vacancies_trudvsem import load_one_vacancy_trudvsem
-from phrases.msg_generation import (msg_details_info_vacancy,
-                                    msg_info_vacancy_favorites)
+from phrases.msg_generation import (
+    msg_details_info_vacancy,
+    msg_info_vacancy_favorites
+)
 from phrases.phrases_for_bot_messages import (
     BotErrorMessages,
     BotHandlerMessages,
@@ -24,13 +32,15 @@ from phrases.texts_for_bot_buttons import ButtonData
 
 router = Router(name=__name__)
 
-# хендлер переработан
+
 @router.callback_query(F.data == ButtonData.favorites[1])
 async def handle_favorites_button(
     callback: CallbackQuery,
     state: FSMContext,
 ):
-    """Хендлер, отвечающий за обработку кнопки 'Перейти в избранное'"""
+    """
+    Хендлер, отвечающий за обработку кнопки 'Перейти в избранное'
+    """
     await callback.answer()
     query_result = get_vacancies_from_favorites(
         user_tg_id=callback.from_user.id
@@ -72,7 +82,8 @@ async def handle_favorites_button(
                         vacancy_id=vacancy.get('vacancy_id'),
                         company_code=vacancy.get('company_code'),
                     )
-                    # проверка актуальности вакансии после запроса к сайту Работа России
+                    # проверка актуальности вакансии после
+                    # запроса к сайту Работа России
                     if (
                         not result_loading.get('status')
                         and 'vacancy_status' in result_loading
@@ -86,7 +97,8 @@ async def handle_favorites_button(
                         not result_loading.get('status')
                         and 'vacancy_status' not in result_loading
                     ):
-                        # Блок кода для отправки пользователю сообщения о неудачной работе
+                        # Блок кода для отправки пользователю
+                        # сообщения о неудачной работе
                         text = BotErrorMessages.trudvsem_request_error.format(
                             user_name=callback.from_user.first_name
                         )
@@ -104,7 +116,8 @@ async def handle_favorites_button(
                         vacancy_id=vacancy.get('vacancy_id')
                     )
                     if not result_loading.get('status'):
-                        # Блок кода для отправки пользователю сообщения о неудачной работе
+                        # Блок кода для отправки пользователю
+                        # сообщения о неудачной работе
                         text = BotErrorMessages.hh_request_error.format(
                             user_name=callback.from_user.first_name
                         )
@@ -140,12 +153,18 @@ async def handle_favorites_button(
                         [
                             (
                                 'Удалить из избранного',
-                                f'{vacancy.get("vacancy_id")}_favorites.delete',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'favorites.delete'
+                                ),
                                 None,
                             ),
                             (
                                 'Подробнее',
-                                f'{vacancy.get("vacancy_id")}_favorites.details',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'favorites.details'
+                                ),
                                 None,
                             ),
                             (
@@ -172,12 +191,18 @@ async def handle_favorites_button(
                         [
                             (
                                 'Удалить из избранного',
-                                f'{vacancy.get("vacancy_id")}_favorites.delete',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'favorites.delete'
+                                ),
                                 None,
                             ),
                             (
                                 'Подробнее',
-                                f'{vacancy.get("vacancy_id")}_favorites.details',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'favorites.details'
+                                ),
                                 None,
                             ),
                             (
@@ -204,7 +229,10 @@ async def handle_favorites_button(
                         [
                             (
                                 'Удалить из избранного',
-                                f'{vacancy.get("vacancy_id")}_favorites.delete',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'favorites.delete'
+                                ),
                                 None,
                             ),
                         ],
@@ -235,7 +263,6 @@ async def handle_favorites_button(
             await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode), DetailsFavoritesFilter()
 )
@@ -270,7 +297,6 @@ async def handle_show_details_favorites_button(
                 company_code=vacancy.company_code,
             )
             if not result_loading.get('status'):
-                # Блок кода для отправки пользователю сообщения о неудачной работе
                 text = BotErrorMessages.trudvsem_request_error.format(
                     user_name=callback.from_user.first_name
                 )
@@ -332,7 +358,6 @@ async def handle_show_details_favorites_button(
         await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode),
     CollapseDetailedFavoritesFilter(),
@@ -391,7 +416,6 @@ async def handle_collapse_details_favorites_button(
         await state.set_state(ApplicantState.show_vacancies_mode)
 
 
-# хендлер переработан
 @router.callback_query(
     StateFilter(ApplicantState.show_vacancies_mode),
     DeleteVacancyFavoritesFilterr(),

@@ -135,7 +135,7 @@ async def favorites_command(message: Message, state: FSMContext):
                         company_code=vacancy.get('company_code'),
                     )
                     result_loading = {'status': False}
-                    # проверка актуальности вакансии после запроса 
+                    # проверка актуальности вакансии после запроса
                     # к сайту Работа России
                     if (
                         not result_loading.get('status')
@@ -200,12 +200,18 @@ async def favorites_command(message: Message, state: FSMContext):
                         [
                             (
                                 'Удалить из избранного',
-                                f'{vacancy.get("vacancy_id")}_favorites.delete',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'favorites.delete'
+                                ),
                                 None,
                             ),
                             (
                                 'Подробнее',
-                                f'{vacancy.get("vacancy_id")}_favorites.details',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'favorites.details'
+                                ),
                                 None,
                             ),
                             (
@@ -231,12 +237,18 @@ async def favorites_command(message: Message, state: FSMContext):
                         [
                             (
                                 'Удалить из избранного',
-                                f'{vacancy.get("vacancy_id")}_favorites.delete',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'favorites.delete'
+                                ),
                                 None,
                             ),
                             (
                                 'Подробнее',
-                                f'{vacancy.get("vacancy_id")}_favorites.details',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'favorites.details'
+                                ),
                                 None,
                             ),
                             (
@@ -262,7 +274,10 @@ async def favorites_command(message: Message, state: FSMContext):
                         [
                             (
                                 'Удалить из избранного',
-                                f'{vacancy.get("vacancy_id")}_favorites.delete',
+                                (
+                                    f'{vacancy.get("vacancy_id")}_'
+                                    'favorites.delete'
+                                ),
                                 None,
                             ),
                         ],

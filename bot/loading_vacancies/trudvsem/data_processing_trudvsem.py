@@ -93,7 +93,9 @@ def parce_vacancy_trudvsem(vacancy: dict) -> dict:
             'полученную от сайта trudvsem.ru'
         )
         return {'status': False}
-    check_result = check_received_data_one_vacancy_trudvsem(vacancy_data=vacancy_data)
+    check_result = check_received_data_one_vacancy_trudvsem(
+        vacancy_data=vacancy_data
+    )
     if not check_result.get('status'):
         return {'status': False}
 
