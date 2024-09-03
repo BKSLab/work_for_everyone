@@ -137,7 +137,7 @@ async def handle_region_name_button(
     await callback.answer()
     await state.update_data(region_code=int(callback.data))
     await state.update_data(region_name=region_name)
-    if callback.data in ["92"]:
+    if callback.data in ['92']:
         await state.update_data(location=region_name)
         entered_data = await state.get_data()
         text = msg_verification(entered_data)
@@ -195,7 +195,7 @@ async def handle_start_search_vacancies_button(
     )
     await callback.message.edit_text(text=text)
     query_result = saving_applicant_data(await state.get_data())
-    if not query_result.get("status"):
+    if not query_result.get('status'):
         text = BotErrorMessages.data_error.format(
             user_name=callback.from_user.first_name
         )
@@ -207,11 +207,11 @@ async def handle_start_search_vacancies_button(
         )
         await callback.message.answer(text=text, reply_markup=kb.as_markup())
     else:
-        aplicant_instance = query_result.get("instance")
+        aplicant_instance = query_result.get('instance')
         result_operation = await loading_management_vacancies_user_location(
             aplicant_instance=aplicant_instance,
         )
-        if not result_operation.get("status"):
+        if not result_operation.get('status'):
             text = BotErrorMessages.main_request_error.format(
                 user_name=callback.from_user.first_name
             )
@@ -225,8 +225,8 @@ async def handle_start_search_vacancies_button(
                 text=text, reply_markup=kb.as_markup()
             )
         if (
-            result_operation.get("status")
-            and result_operation.get("total_vacancies") == 0
+            result_operation.get('status')
+            and result_operation.get('total_vacancies') == 0
         ):
             text = BotHandlerMessages.vacancies_not_found.format(
                 user_name=callback.from_user.first_name,
@@ -238,20 +238,20 @@ async def handle_start_search_vacancies_button(
             )
 
         if (
-            result_operation.get("status")
-            and 0 < result_operation.get("total_vacancies") <= 10
+            result_operation.get('status')
+            and 0 < result_operation.get('total_vacancies') <= 10
         ):
             await state.update_data(
-                count_vacancies=result_operation.get("total_vacancies")
+                count_vacancies=result_operation.get('total_vacancies')
             )
             text = BotHandlerMessages.show_vacancies.format(
                 user_name=callback.from_user.first_name,
-                total_vacancies=str(result_operation.get("total_vacancies")),
+                total_vacancies=str(result_operation.get('total_vacancies')),
                 user_location=aplicant_instance.location,
                 count_vacancy_trudvsem=str(
-                    result_operation.get("count_vacancy_trudvsem")
+                    result_operation.get('count_vacancy_trudvsem')
                 ),
-                count_vacancy_hh=str(result_operation.get("count_vacancy_hh")),
+                count_vacancy_hh=str(result_operation.get('count_vacancy_hh')),
             )
             kb = generation_inline_kb([ButtonData.show_few_vacancies], 1)
             await callback.message.edit_text(
@@ -260,20 +260,20 @@ async def handle_start_search_vacancies_button(
             await state.set_state(ApplicantState.show_vacancies_mode)
 
         if (
-            result_operation.get("status")
-            and result_operation.get("total_vacancies") > 10
+            result_operation.get('status')
+            and result_operation.get('total_vacancies') > 10
         ):
             await state.update_data(
-                count_vacancies=result_operation.get("total_vacancies")
+                count_vacancies=result_operation.get('total_vacancies')
             )
             text = BotHandlerMessages.show_vacancies.format(
                 user_name=callback.from_user.first_name,
-                total_vacancies=str(result_operation.get("total_vacancies")),
+                total_vacancies=str(result_operation.get('total_vacancies')),
                 user_location=aplicant_instance.location,
                 count_vacancy_trudvsem=str(
-                    result_operation.get("count_vacancy_trudvsem")
+                    result_operation.get('count_vacancy_trudvsem')
                 ),
-                count_vacancy_hh=str(result_operation.get("count_vacancy_hh")),
+                count_vacancy_hh=str(result_operation.get('count_vacancy_hh')),
             )
             kb = generation_inline_kb(
                 [
@@ -302,7 +302,7 @@ async def handle_show_few_vacancies_button(
     """
     await callback.answer()
     query_result = get_all_vacancies_user_location(callback.from_user.id)
-    if not query_result.get("status"):
+    if not query_result.get('status'):
         text = BotErrorMessages.data_error.format(
             user_name=callback.from_user.first_name
         )
@@ -316,14 +316,14 @@ async def handle_show_few_vacancies_button(
             text=text, reply_markup=kb.as_markup()
         )
     else:
-        vacancies = query_result.get("vacancies")
+        vacancies = query_result.get('vacancies')
         vacancies_list = [vacancy for vacancy in vacancies.dicts()]
         for vacancy in vacancies_list:
             query_result = check_vacancy_favorites_exists(
-                vacancy_id=vacancy.get("vacancy_id"),
+                vacancy_id=vacancy.get('vacancy_id'),
                 user_tg_id=callback.from_user.id,
             )
-            if not query_result.get("status"):
+            if not query_result.get('status'):
                 text = BotErrorMessages.data_error.format(
                     user_name=callback.from_user.first_name
                 )
@@ -337,48 +337,48 @@ async def handle_show_few_vacancies_button(
                     text=text, reply_markup=kb.as_markup()
                 )
             else:
-                if query_result.get("check_status"):
+                if query_result.get('check_status'):
                     kb = generation_inline_kb_with_url(
                         [
                             (
-                                "Удалить из избранного",
+                                'Удалить из избранного',
                                 f'{vacancy.get("vacancy_id")}_delete',
                                 None,
                             ),
                             (
-                                "Подробнее",
+                                'Подробнее',
                                 f'{vacancy.get("vacancy_id")}_details',
                                 None,
                             ),
                             (
-                                "Откликнуться на {}".format(
-                                    vacancy.get("vacancy_source")
+                                'Откликнуться на {}'.format(
+                                    vacancy.get('vacancy_source')
                                 ),
                                 None,
-                                vacancy.get("vacancy_url"),
+                                vacancy.get('vacancy_url'),
                             ),
                         ],
                         2,
                     )
-                if not query_result.get("check_status"):
+                if not query_result.get('check_status'):
                     kb = generation_inline_kb_with_url(
                         [
                             (
-                                "Добавить в избранное",
+                                'Добавить в избранное',
                                 f'{vacancy.get("vacancy_id")}_favorites',
                                 None,
                             ),
                             (
-                                "Подробнее",
+                                'Подробнее',
                                 f'{vacancy.get("vacancy_id")}_details',
                                 None,
                             ),
                             (
-                                "Откликнуться на {}".format(
-                                    vacancy.get("vacancy_source")
+                                'Откликнуться на {}'.format(
+                                    vacancy.get('vacancy_source')
                                 ),
                                 None,
-                                vacancy.get("vacancy_url"),
+                                vacancy.get('vacancy_url'),
                             ),
                         ],
                         2,
@@ -413,7 +413,7 @@ async def handle_show_many_vacancies_button(
     query_result = get_count_all_vacancies_user_location(
         user_tg_id=callback.from_user.id
     )
-    if not query_result.get("status"):
+    if not query_result.get('status'):
         text = BotErrorMessages.data_error.format(
             user_name=callback.from_user.first_name
         )
@@ -427,12 +427,12 @@ async def handle_show_many_vacancies_button(
             text=text, reply_markup=kb.as_markup()
         )
     else:
-        count_vacancies = query_result.get("count_vacancies")
+        count_vacancies = query_result.get('count_vacancies')
         count_pages = ceil(count_vacancies / 10)
         query_result = get_ten_vacancies(
             user_tg_id=callback.from_user.id, page_number=page_number
         )
-        if not query_result.get("status"):
+        if not query_result.get('status'):
             text = BotErrorMessages.data_error.format(
                 user_name=callback.from_user.first_name
             )
@@ -446,14 +446,14 @@ async def handle_show_many_vacancies_button(
                 text=text, reply_markup=kb.as_markup()
             )
         else:
-            ten_vacancies = query_result.get("ten_vacancies")
+            ten_vacancies = query_result.get('ten_vacancies')
             vacancies_list = [vacancy for vacancy in ten_vacancies.dicts()]
             for vacancy in vacancies_list:
                 query_result = check_vacancy_favorites_exists(
-                    vacancy_id=vacancy.get("vacancy_id"),
+                    vacancy_id=vacancy.get('vacancy_id'),
                     user_tg_id=callback.from_user.id,
                 )
-                if not query_result.get("status"):
+                if not query_result.get('status'):
                     text = BotErrorMessages.data_error.format(
                         user_name=callback.from_user.first_name
                     )
@@ -467,48 +467,48 @@ async def handle_show_many_vacancies_button(
                         text=text, reply_markup=kb.as_markup()
                     )
                 else:
-                    if query_result.get("check_status"):
+                    if query_result.get('check_status'):
                         kb = generation_inline_kb_with_url(
                             [
                                 (
-                                    "Удалить из избранного",
+                                    'Удалить из избранного',
                                     f'{vacancy.get("vacancy_id")}_delete',
                                     None,
                                 ),
                                 (
-                                    "Подробнее",
+                                    'Подробнее',
                                     f'{vacancy.get("vacancy_id")}_details',
                                     None,
                                 ),
                                 (
-                                    "Откликнуться на {}".format(
-                                        vacancy.get("vacancy_source")
+                                    'Откликнуться на {}'.format(
+                                        vacancy.get('vacancy_source')
                                     ),
                                     None,
-                                    vacancy.get("vacancy_url"),
+                                    vacancy.get('vacancy_url'),
                                 ),
                             ],
                             2,
                         )
-                    if not query_result.get("check_status"):
+                    if not query_result.get('check_status'):
                         kb = generation_inline_kb_with_url(
                             [
                                 (
-                                    "Добавить в избранное",
+                                    'Добавить в избранное',
                                     f'{vacancy.get("vacancy_id")}_favorites',
                                     None,
                                 ),
                                 (
-                                    "Подробнее",
+                                    'Подробнее',
                                     f'{vacancy.get("vacancy_id")}_details',
                                     None,
                                 ),
                                 (
-                                    "Откликнуться на {}".format(
-                                        vacancy.get("vacancy_source")
+                                    'Откликнуться на {}'.format(
+                                        vacancy.get('vacancy_source')
                                     ),
                                     None,
-                                    vacancy.get("vacancy_url"),
+                                    vacancy.get('vacancy_url'),
                                 ),
                             ],
                             2,
@@ -542,11 +542,11 @@ async def handle_show_details_button(
 ):
     """Хендлер, срабатывающий на нажатие кнопки 'Подробнее'"""
     await callback.answer()
-    vacancy_id = callback.data.split("_")[0]
+    vacancy_id = callback.data.split('_')[0]
     query_result = get_one_vacancy(
         vacancy_id=vacancy_id, user_tg_id=callback.from_user.id
     )
-    if not query_result.get("status"):
+    if not query_result.get('status'):
         text = BotErrorMessages.data_error.format(
             user_name=callback.from_user.first_name
         )
@@ -560,15 +560,15 @@ async def handle_show_details_button(
             text=text, reply_markup=kb.as_markup()
         )
     else:
-        vacancy = query_result.get("vacancy")
+        vacancy = query_result.get('vacancy')
         vacancy_source = vacancy.vacancy_source
         # загрузка данных о вакансии
-        if vacancy_source == "Работа России":
+        if vacancy_source == 'Работа России':
             result_loading = await load_one_vacancy_trudvsem(
                 vacancy_id=vacancy.vacancy_id,
                 company_code=vacancy.company_code,
             )
-            if not result_loading.get("status"):
+            if not result_loading.get('status'):
                 text = BotErrorMessages.trudvsem_request_error.format(
                     user_name=callback.from_user.first_name
                 )
@@ -582,13 +582,13 @@ async def handle_show_details_button(
                     text=text, reply_markup=kb.as_markup()
                 )
             else:
-                vacancy = result_loading.get("vacancy")
+                vacancy = result_loading.get('vacancy')
 
-        if vacancy_source == "hh.ru":
+        if vacancy_source == 'hh.ru':
             result_loading = await load_one_vacancy_hh(
                 vacancy_id=vacancy.vacancy_id
             )
-            if not result_loading.get("status"):
+            if not result_loading.get('status'):
                 text = BotErrorMessages.hh_request_error.format(
                     user_name=callback.from_user.first_name
                 )
@@ -602,13 +602,13 @@ async def handle_show_details_button(
                     text=text, reply_markup=kb.as_markup()
                 )
             else:
-                vacancy = result_loading.get("vacancy")
+                vacancy = result_loading.get('vacancy')
 
         query_result = check_vacancy_favorites_exists(
-            vacancy_id=vacancy.get("vacancy_id"),
+            vacancy_id=vacancy.get('vacancy_id'),
             user_tg_id=callback.from_user.id,
         )
-        if not query_result.get("status"):
+        if not query_result.get('status'):
             text = BotErrorMessages.data_error.format(
                 user_name=callback.from_user.first_name
             )
@@ -622,25 +622,25 @@ async def handle_show_details_button(
                 text=text, reply_markup=kb.as_markup()
             )
         else:
-            if query_result.get("check_status"):
+            if query_result.get('check_status'):
                 kb = generation_inline_kb_with_url(
                     [
                         (
-                            "Удалить из избранного",
+                            'Удалить из избранного',
                             f'{vacancy.get("vacancy_id")}_delete',
                             None,
                         ),
                         (
-                            "Свернуть",
+                            'Свернуть',
                             f'{vacancy.get("vacancy_id")}_collapse',
                             None,
                         ),
                         (
-                            "Откликнуться на {}".format(
-                                vacancy.get("vacancy_source")
+                            'Откликнуться на {}'.format(
+                                vacancy.get('vacancy_source')
                             ),
                             None,
-                            vacancy.get("vacancy_url"),
+                            vacancy.get('vacancy_url'),
                         ),
                     ],
                     2,
@@ -649,21 +649,21 @@ async def handle_show_details_button(
                 kb = generation_inline_kb_with_url(
                     [
                         (
-                            "Добавить в избранное",
+                            'Добавить в избранное',
                             f'{vacancy.get("vacancy_id")}_favorites',
                             None,
                         ),
                         (
-                            "Свернуть",
+                            'Свернуть',
                             f'{vacancy.get("vacancy_id")}_collapse',
                             None,
                         ),
                         (
-                            "Откликнуться на {}".format(
-                                vacancy.get("vacancy_source")
+                            'Откликнуться на {}'.format(
+                                vacancy.get('vacancy_source')
                             ),
                             None,
-                            vacancy.get("vacancy_url"),
+                            vacancy.get('vacancy_url'),
                         ),
                     ],
                     2,
@@ -684,11 +684,11 @@ async def handle_collapse_details_button(
 ):
     """Хендлер, срабатывающий на нажатие кнопки 'Свернуть'"""
     await callback.answer()
-    vacancy_id = callback.data.split("_")[0]
+    vacancy_id = callback.data.split('_')[0]
     query_result = get_one_vacancy(
         vacancy_id=vacancy_id, user_tg_id=callback.from_user.id
     )
-    if not query_result.get("status"):
+    if not query_result.get('status'):
         text = BotErrorMessages.data_error.format(
             user_name=callback.from_user.first_name
         )
@@ -702,13 +702,13 @@ async def handle_collapse_details_button(
             text=text, reply_markup=kb.as_markup()
         )
     else:
-        vacancy = query_result.get("vacancy")
+        vacancy = query_result.get('vacancy')
 
         query_result = check_vacancy_favorites_exists(
             vacancy_id=vacancy.vacancy_id,
             user_tg_id=callback.from_user.id,
         )
-        if not query_result.get("status"):
+        if not query_result.get('status'):
             text = BotErrorMessages.data_error.format(
                 user_name=callback.from_user.first_name
             )
@@ -722,21 +722,21 @@ async def handle_collapse_details_button(
                 text=text, reply_markup=kb.as_markup()
             )
         else:
-            if query_result.get("check_status"):
+            if query_result.get('check_status'):
                 kb = generation_inline_kb_with_url(
                     [
                         (
-                            "Удалить из избранного",
-                            f"{vacancy.vacancy_id}_delete",
+                            'Удалить из избранного',
+                            f'{vacancy.vacancy_id}_delete',
                             None,
                         ),
                         (
-                            "Подробнее",
-                            f"{vacancy.vacancy_id}_details",
+                            'Подробнее',
+                            f'{vacancy.vacancy_id}_details',
                             None,
                         ),
                         (
-                            "Откликнуться на {}".format(
+                            'Откликнуться на {}'.format(
                                 vacancy.vacancy_source
                             ),
                             None,
@@ -749,17 +749,17 @@ async def handle_collapse_details_button(
                 kb = generation_inline_kb_with_url(
                     [
                         (
-                            "Добавить в избранное",
-                            f"{vacancy.vacancy_id}_favorites",
+                            'Добавить в избранное',
+                            f'{vacancy.vacancy_id}_favorites',
                             None,
                         ),
                         (
-                            "Подробнее",
-                            f"{vacancy.vacancy_id}_details",
+                            'Подробнее',
+                            f'{vacancy.vacancy_id}_details',
                             None,
                         ),
                         (
-                            "Откликнуться на {}".format(
+                            'Откликнуться на {}'.format(
                                 vacancy.vacancy_source
                             ),
                             None,
@@ -768,7 +768,7 @@ async def handle_collapse_details_button(
                     ],
                     2,
                 )
-        text = msg_info_vacancy(vacancy.__dict__.get("__data__"))
+        text = msg_info_vacancy(vacancy.__dict__.get('__data__'))
         await callback.message.edit_text(
             text=text, reply_markup=kb.as_markup()
         )
@@ -787,7 +787,7 @@ async def handle_add_vacancy_favorites_button(
     query_result = get_one_vacancy(
         vacancy_id=vacancy_id, user_tg_id=callback.from_user.id
     )
-    if not query_result.get("status"):
+    if not query_result.get('status'):
         text = BotErrorMessages.data_error.format(
             user_name=callback.from_user.first_name
         )
@@ -801,11 +801,11 @@ async def handle_add_vacancy_favorites_button(
             text=text, reply_markup=kb.as_markup()
         )
     else:
-        vacancy = query_result.get("vacancy")
+        vacancy = query_result.get('vacancy')
         saving_result = saving_vacancy_favorites(
             vacancy_instance=vacancy, user_tg_id=callback.from_user.id
         )
-        if not saving_result.get("status"):
+        if not saving_result.get('status'):
             text = BotErrorMessages.data_error.format(
                 user_name=callback.from_user.first_name
             )
@@ -819,21 +819,21 @@ async def handle_add_vacancy_favorites_button(
                 text=text, reply_markup=kb.as_markup()
             )
         else:
-            saved_vacancy = saving_result.get("instance")
+            saved_vacancy = saving_result.get('instance')
             kb = generation_inline_kb_with_url(
                 [
                     (
-                        "Удалить из избранного",
-                        f"{saved_vacancy.vacancy_id}_delete",
+                        'Удалить из избранного',
+                        f'{saved_vacancy.vacancy_id}_delete',
                         None,
                     ),
                     (
-                        "Подробнее",
-                        f"{saved_vacancy.vacancy_id}_details",
+                        'Подробнее',
+                        f'{saved_vacancy.vacancy_id}_details',
                         None,
                     ),
                     (
-                        "Откликнуться на {}".format(
+                        'Откликнуться на {}'.format(
                             saved_vacancy.vacancy_source
                         ),
                         None,
@@ -843,7 +843,7 @@ async def handle_add_vacancy_favorites_button(
                 2,
             )
             text = msg_info_vacancy(
-                vacancy=saved_vacancy.__dict__.get("__data__")
+                vacancy=saved_vacancy.__dict__.get('__data__')
             )
             await callback.message.edit_text(
                 text=text, reply_markup=kb.as_markup()
@@ -860,11 +860,11 @@ async def handle_delete_vacancy_from_favorites_button(
 ):
     """Хендлер, срабатывающий на нажатие кнопки 'Удалить из избранного'"""
     await callback.answer()
-    vacancy_id = callback.data.split("_")[0]
+    vacancy_id = callback.data.split('_')[0]
     query_result = get_one_vacancy(
         vacancy_id=vacancy_id, user_tg_id=callback.from_user.id
     )
-    if not query_result.get("status"):
+    if not query_result.get('status'):
         text = BotErrorMessages.data_error.format(
             user_name=callback.from_user.first_name
         )
@@ -878,13 +878,13 @@ async def handle_delete_vacancy_from_favorites_button(
             text=text, reply_markup=kb.as_markup()
         )
     else:
-        vacancy = query_result.get("vacancy")
+        vacancy = query_result.get('vacancy')
         deleting_result = delete_vacancy_from_favorites(
             vacancy_id=vacancy.vacancy_id,
             user_tg_id=callback.from_user.id,
             vacancy_source=vacancy.vacancy_source,
         )
-        if not deleting_result.get("status"):
+        if not deleting_result.get('status'):
             text = BotErrorMessages.data_error.format(
                 user_name=callback.from_user.first_name
             )
@@ -901,24 +901,24 @@ async def handle_delete_vacancy_from_favorites_button(
             kb = generation_inline_kb_with_url(
                 [
                     (
-                        "Добавить в избранное",
-                        f"{vacancy.vacancy_id}_favorites",
+                        'Добавить в избранное',
+                        f'{vacancy.vacancy_id}_favorites',
                         None,
                     ),
                     (
-                        "Подробнее",
-                        f"{vacancy.vacancy_id}_details",
+                        'Подробнее',
+                        f'{vacancy.vacancy_id}_details',
                         None,
                     ),
                     (
-                        "Откликнуться на {}".format(vacancy.vacancy_source),
+                        'Откликнуться на {}'.format(vacancy.vacancy_source),
                         None,
                         vacancy.vacancy_url,
                     ),
                 ],
                 2,
             )
-            text = msg_info_vacancy(vacancy.__dict__.get("__data__"))
+            text = msg_info_vacancy(vacancy.__dict__.get('__data__'))
             await callback.message.edit_text(
                 text=text, reply_markup=kb.as_markup()
             )

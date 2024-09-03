@@ -4,10 +4,11 @@ import os
 
 from data_operations.save_data import saving_region_data
 from data_operations.check_data import region_data_exists
-from config_data.config import BASE_DIR
+from config_data.config import load_config
 
 
 logger_data_operations = logging.getLogger(__name__)
+config = load_config()
 
 
 def read_csv_file_with_data_regions() -> dict[dict[str, str]]:
@@ -15,7 +16,9 @@ def read_csv_file_with_data_regions() -> dict[dict[str, str]]:
     try:
         with open(
             os.path.join(
-                BASE_DIR, 'database', 'information_about_regions.csv'
+                config.app.base_dir,
+                'database',
+                'information_about_regions.csv'
             )
         ) as information_about_regions_csv:
             reader = csv.reader(

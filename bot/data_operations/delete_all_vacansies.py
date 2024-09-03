@@ -32,7 +32,8 @@ async def delete_all_vacansies_from_vacancy_table(bot: Bot) -> None:
     except PeeweeException as error:
         text_error = (
             'При удалении данных из таблицы vacancy произошла ошибка.'
-            f'Текст ошибки: {error.__str__()}'
+            f'произошла ошибка. Текст ошибки: {error}. '
+            f'Тип ошибки: {type(error).__name__}.'
         )
         logger_data_operations.exception(text_error)
         return {'status': False, 'error': text_error}

@@ -12,12 +12,13 @@ from loading_vacancies.load_vacancies_trudvsem import (
     load_vacancy_from_trudvsem_spb,
     load_vacancy_trudvsem_user_location
 )
-from config_data.config import ADMIN_USER_ID
+from config_data.config import load_config
 from data_operations.delete_data import delete_vacancies_msk_spb
 from database.models import Applicant
 
 
 logger_load_msk_spb = logging.getLogger(__name__)
+config = load_config()
 
 
 async def loading_management_vacancies_msk_spb(bot: Bot):
@@ -34,7 +35,7 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
     delete_result = delete_vacancies_msk_spb()
     if not delete_result.get('status'):
         text = delete_result.get('error')
-        await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
     if delete_result.get('status'):
         text = (
             'Данные о вакансиях из таблиц vacancy_spb и vacancy_msk '
@@ -44,7 +45,7 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
             f'{delete_result.get("count_spb")}'
         )
         logger_load_msk_spb.info(text)
-        await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
 
     # загрузка и сохранение данных о вакансиях в Москве с сайта hh.ru
     hh_msk_result = load_vacancy_from_hh_msk()
@@ -57,7 +58,7 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
             'таблицу vacancy_msk произошла ошибка.'
         )
         logger_load_msk_spb.info(text)
-        await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
 
     # Отправка сообщения администратору бота и логирование в случае,
     # когда все данные о вакансиях в Москве были загружены и сохранены в БД
@@ -68,7 +69,7 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
             f'{hh_msk_result.get("count_vacancy_msk")} '
         )
         logger_load_msk_spb.info(text)
-        await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
 
     await asyncio.sleep(delay=5)
     # загрузка и сохранение данных о вакансиях в Санкт_петербурге с сайта hh.ru
@@ -82,7 +83,7 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
             'в таблицу vacancy_spb произошла ошибка.'
         )
         logger_load_msk_spb.info(text)
-        await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
 
     # Отправка сообщения администратору бота и логирование в случае,
     # когда все данные о вакансиях в Санкт-Петербурге были
@@ -94,7 +95,7 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
             f'Всего сохранено: {hh_spb_result.get("count_vacancy_spb")} '
         )
         logger_load_msk_spb.info(text)
-        await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
 
     # загрузка и сохранение данных о вакансиях в Москве с сайта trudvsem.ru
     trudvsem_msk_result = load_vacancy_from_trudvsem_msk()
@@ -107,7 +108,7 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
             'таблицу vacancy_msk произошла ошибка.'
         )
         logger_load_msk_spb.info(text)
-        await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
 
     # Отправка сообщения администратору бота и логирование в случае,
     # когда все данные о вакансиях в Москве были загружены и сохранены в БД
@@ -118,7 +119,7 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
             f'Всего сохранено: {trudvsem_msk_result.get("count_vacancy_msk")} '
         )
         logger_load_msk_spb.info(text)
-        await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
 
     await asyncio.sleep(delay=5)
     trudvsem_spb_result = load_vacancy_from_trudvsem_spb()
@@ -131,7 +132,7 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
             'Санкт-Петербургев таблицу vacancy_spb произошла ошибка.'
         )
         logger_load_msk_spb.info(text)
-        await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
 
     # Отправка сообщения администратору бота и логирование в случае,
     # когда все данные о вакансиях в Санкт-Петербурге
@@ -143,7 +144,7 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
             f'Всего сохранено: {trudvsem_spb_result.get("count_vacancy_spb")} '
         )
         logger_load_msk_spb.info(text)
-        await bot.send_message(chat_id=ADMIN_USER_ID, text=text)
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
 
 
 async def loading_management_vacancies_user_location(

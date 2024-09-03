@@ -1,7 +1,7 @@
 import logging
 
 import requests
-from config_data.config import ACCESS_TOKEN_HH
+from config_data.config import load_config
 from loading_vacancies.endpoints import EndpointHH, ParameterRequestHH
 from loading_vacancies.hh.check_api_hh_responce import (
     check_responce_api_hh_one_vacancy,
@@ -9,11 +9,12 @@ from loading_vacancies.hh.check_api_hh_responce import (
 )
 
 logger_api_hh = logging.getLogger(__name__)
+config = load_config()
 
 
 def request_to_api_hh_one_vacancy(vacancy_id: str) -> dict:
     """Запрос к api hh.ru на получение данных об одной вакансии."""
-    headers = {'Authorization': f'Bearer {ACCESS_TOKEN_HH}'}
+    headers = {'Authorization': f'Bearer {config.app.access_token_hh}'}
     try:
         api_response = requests.get(
             ''.join([EndpointHH.VACANCY_URL, vacancy_id]), headers=headers
@@ -68,7 +69,7 @@ def request_to_api_hh_msk_spb(
     в Москве и Санкт-Петербурге.
     """
     # Токен передается в заголовке запроса
-    headers = {'Authorization': f'Bearer {ACCESS_TOKEN_HH}'}
+    headers = {'Authorization': f'Bearer {config.app.access_token_hh}'}
     # Словарь с необходимыми параметрами для запроса к api hh.ru
     payload = {
         'page': page,
@@ -123,7 +124,7 @@ def request_to_api_hh_other_vacancies(
     Запрос к api hh.ru на получение данных о вакансиях
     в пользовательской локации.
     """
-    headers = {'Authorization': f'Bearer {ACCESS_TOKEN_HH}'}
+    headers = {'Authorization': f'Bearer {config.app.access_token_hh}'}
     payload = {
         'page': page,
         'per_page': ParameterRequestHH.VACANCIES_PER_ONE_PAGE_HH,
