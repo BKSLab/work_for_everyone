@@ -3,7 +3,7 @@ from psycopg2 import (
     DatabaseError,
     OperationalError,
     ProgrammingError,
-    connect
+    connect,
 )
 from config_data.config import load_config
 
@@ -18,7 +18,7 @@ def create_db() -> dict:
         conn = connect(
             host=config.db.host,
             user=config.db.user,
-            password=config.db.password
+            password=config.db.password,
         )
         conn.autocommit = True
         cursor = conn.cursor()
@@ -58,8 +58,7 @@ def create_db() -> dict:
     except Exception as error:
         text_msg = (
             'В ходе работы функции create_db произошла ошибка.'
-            f'произошла ошибка. Текст ошибки: {error}. '
-            f'Тип ошибки: {type(error).__name__}.'
+            f'Текст ошибки: {error}. Тип ошибки: {type(error).__name__}.'
         )
         conn.close()
         logger_db.exception(text_msg)

@@ -1,7 +1,5 @@
 import logging
 
-from aiogram import Bot
-
 from database.models import Vacancy, db_work_for_everyone
 from peewee import PeeweeException
 
@@ -9,7 +7,7 @@ from peewee import PeeweeException
 logger_data_operations = logging.getLogger(__name__)
 
 
-async def delete_all_vacansies_from_vacancy_table(bot: Bot) -> None:
+def delete_all_vacansies_from_vacancy_table() -> dict:
     """
     Полное удаление данных о вакансиях.
     Удаление происходит по рассписанию, один раз в сутки.

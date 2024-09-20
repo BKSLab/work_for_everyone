@@ -8,10 +8,8 @@ def msg_verification(data: dict[str, str | int]) -> str:
         'Если данные не верны, то жми кнопку <b>"Ввести данные заново"</b>.\n'
         'Если всё верно, жми кнопку <b>"Начать поиск вакансий"</b>\n\n'
         '<b>Проверяем данные:\n</b>'
-        f'<b>Федеральный округ:</b> {data.get("fd_code")}\n'
-        f'<b>Название выбранного региона:</b> {data.get("region_name")}\n'
-        f'<b>Номер выбранного региона:</b> {data.get("region_code")}\n'
-        f'<b>Наименование населённого пункта:</b> {data.get("location")}'
+        f'<b>Регион:</b> {data.get("region_name")}\n'
+        f'<b>Населенный пункт:</b> {data.get("location")}'
     )
 
 

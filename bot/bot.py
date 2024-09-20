@@ -23,7 +23,8 @@ from handlers import (
 )
 from keyboards.menu import set_main_menu
 from loading_vacancies.load_manage_vacancies import (
-    loading_management_vacancies_msk_spb
+    loading_management_vacancies_msk_spb,
+    loading_management_vacancies_msk_spb_on_start_bot
 )
 
 
@@ -72,12 +73,12 @@ def setup_scheduler(bot: Bot) -> None:
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
         main_administration,
-        CronTrigger(day_of_week='*', minute=50),
+        CronTrigger(day_of_week='*', minute=58),
         args=(bot,),
     )
     scheduler.add_job(
         loading_management_vacancies_msk_spb,
-        CronTrigger(day_of_week='*', minute=45),
+        CronTrigger(day_of_week='*', minute=52),
         args=(bot,),
     )
     scheduler.start()
@@ -105,8 +106,10 @@ async def main() -> None:
 
     await initialize_database(bot=bot)
     await add_region_data(bot=bot)
+    await loading_management_vacancies_msk_spb_on_start_bot(bot=bot)
 
     setup_scheduler(bot=bot)
+
     await setup_dispatcher_and_start_bot(dp=dp, bot=bot)
 
 

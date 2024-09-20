@@ -74,7 +74,7 @@ def get_vacancies_by_keyword_msk_spb(
             db_work_for_everyone.connect()
         vacancies = model.select().where(
             model.vacancy_name.contains(keyword)
-        )
+        ).order_by(model.vacancy_source.desc())
         return {'status': True, 'vacancies': vacancies}
     except PeeweeException as error:
         logger_data_operations.exception(
@@ -131,6 +131,7 @@ def get_ten_vacancies_by_keyword_msk_spb(
             .where(
                 model.vacancy_name.contains(keyword)
             )
+            .order_by(model.vacancy_source.desc())
             .paginate(page_number, 10)
         )
         return {'status': True, 'vacancies_by_keyword': vacancies_by_keyword}
@@ -180,7 +181,9 @@ def get_ten_vacancies_msk_spb(
         if not db_work_for_everyone.is_connection_usable():
             db_work_for_everyone.connect()
         ten_vacancies = (
-            model.select().paginate(page_number, 10)
+            model.select().order_by(
+                model.vacancy_source.desc()
+            ).paginate(page_number, 10)
         )
         return {'status': True, 'ten_vacancies': ten_vacancies}
     except PeeweeException as error:

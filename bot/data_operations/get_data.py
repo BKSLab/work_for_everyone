@@ -106,7 +106,7 @@ def get_all_vacancies_user_location(user_tg_id: int) -> dict:
             db_work_for_everyone.connect()
         vacancies = Vacancy.select().where(
             Vacancy.applicant_tg_id == user_tg_id
-        )
+        ).order_by(Vacancy.vacancy_source.desc())
         return {'status': True, 'vacancies': vacancies}
     except PeeweeException as error:
         logger_data_operations.exception(
@@ -129,6 +129,7 @@ def get_ten_vacancies(user_tg_id: int, page_number: int) -> dict:
         vacancies = (
             Vacancy.select()
             .where(Vacancy.applicant_tg_id == user_tg_id)
+            .order_by(Vacancy.vacancy_source.desc())
             .paginate(page_number, 10)
         )
         return {'status': True, 'ten_vacancies': vacancies}
@@ -152,7 +153,7 @@ def get_vacancies_from_favorites(user_tg_id: str) -> dict:
             db_work_for_everyone.connect()
         vacancies = Favorites.select().where(
             Favorites.applicant_tg_id == user_tg_id
-        )
+        ).order_by(Favorites.vacancy_source.desc())
         return {'status': True, 'vacancies': vacancies}
     except PeeweeException as error:
         logger_data_operations.exception(
@@ -225,7 +226,7 @@ def get_vacancies_by_keyword(user_tg_id: int, keyword: str) -> dict:
         vacancies = Vacancy.select().where(
             (Vacancy.applicant_tg_id == user_tg_id)
             & (Vacancy.vacancy_name.contains(keyword))
-        )
+        ).order_by(Vacancy.vacancy_source.desc())
         return {'status': True, 'vacancies': vacancies}
     except PeeweeException as error:
         logger_data_operations.exception(
@@ -251,7 +252,7 @@ def get_ten_vacancies_by_keyword(
             .where(
                 (Vacancy.applicant_tg_id == user_tg_id)
                 & (Vacancy.vacancy_name.contains(keyword))
-            )
+            ).order_by(Vacancy.vacancy_source.desc())
             .paginate(page_number, 10)
         )
         return {'status': True, 'vacancies_by_keyword': vacancies_by_keyword}
@@ -289,7 +290,6 @@ def get_one_vacancy(vacancy_id: str, user_tg_id: int) -> dict:
             db_work_for_everyone.close()
 
 
-# оставляем ошибки
 def get_count_applicants() -> dict:
     """Подсчет количества пользователей."""
     try:
@@ -309,8 +309,9 @@ def get_count_applicants() -> dict:
         return {'status': True, 'text': text}
     except PeeweeException as error:
         text_error = (
-            'При отправке запроса к таблице с информацией о пользователях,'
-            f'произошла ошибка.\nТекст ошибки: {error.__str__()}'
+            'При отправке запроса к таблице с информацией '
+            'о пользователях, произошла ошибка.'
+            f'Текст ошибки: {error}. Тип ошибки: {type(error).__name__}.'
         )
         logger_data_operations.exception(text_error)
         return {'status': False, 'error': text_error}
@@ -319,7 +320,6 @@ def get_count_applicants() -> dict:
             db_work_for_everyone.close()
 
 
-# оставляем ошибки
 def get_count_favorites() -> dict:
     """Подсчет количества пользователей и вакансий, добавленных в избранное."""
     try:
@@ -341,8 +341,8 @@ def get_count_favorites() -> dict:
     except PeeweeException as error:
         text_error = (
             'При отправке запроса к таблице с информацией о вакансиях, '
-            'добавленных в избранное, произошла ошибка.\n'
-            f'Текст ошибки: {error.__str__()}'
+            'добавленных в избранное, произошла ошибка.'
+            f'Текст ошибки: {error}. Тип ошибки: {type(error).__name__}.'
         )
         logger_data_operations.exception(text_error)
         return {'status': False, 'error': text_error}

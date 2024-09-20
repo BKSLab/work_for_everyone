@@ -1,3 +1,4 @@
+import aiohttp
 from data_operations.delete_data import deleting_vacancy_user_location
 from data_operations.get_data import get_count_vacancies_user_location
 from data_operations.get_msk_spb_data import get_count_vacancies_msk_spb
@@ -23,9 +24,13 @@ async def load_vacancy_user_location_hh(
     Управление загрузкой и обработкой данных о вакансиях в пользовательской
     локации с api hh.ru.
     """
-    data_vacancies_from_api = get_vacancies_api_hh_user_location(
-        reg_code_hh=reg_code_hh, user_location=user_location
-    )
+    async with aiohttp.ClientSession() as session:
+        data_vacancies_from_api = await get_vacancies_api_hh_user_location(
+            session=session,
+            reg_code_hh=reg_code_hh,
+            user_location=user_location
+        )
+
     # Проверка результата запроса к api
     if not data_vacancies_from_api.get('status'):
         return {'status': False}

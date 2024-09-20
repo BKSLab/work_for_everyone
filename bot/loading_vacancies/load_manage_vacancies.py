@@ -14,6 +14,7 @@ from loading_vacancies.load_vacancies_trudvsem import (
 )
 from config_data.config import load_config
 from data_operations.delete_data import delete_vacancies_msk_spb
+from data_operations.check_data import check_vacancy_msk_spb_exists
 from database.models import Applicant
 
 
@@ -145,6 +146,131 @@ async def loading_management_vacancies_msk_spb(bot: Bot):
         )
         logger_load_msk_spb.info(text)
         await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+
+async def loading_management_vacancies_msk_spb_on_start_bot(bot: Bot):
+    """
+    Функция управления загрузкой данных о вакансиях
+    в Москве и Санкт-Петербурге при старте бота.
+    Функция проверяет, загружались ли ранее вакансии из Москвы и
+    Санкт-Петербурга. Если в БД вакансий нет, то вакансии будут загружены.
+    """
+
+    # Проверка наличия вакансий в БД на момент старта бота
+    result_check = check_vacancy_msk_spb_exists()
+    if not result_check.get('status'):
+        text = result_check.get('error')
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+    # отправка пользователю сообщения, если вакансии уже есть в БД
+    if result_check.get('status') and result_check.get('data_exists'):
+        text = result_check.get('text_msg')
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+    # Если вакансии в БД отсутствуют, их необходимо загрузить
+    if result_check.get('status') and not result_check.get('data_exists'):
+        text = result_check.get('text_msg')
+        await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+        # загрузка и сохранение данных о вакансиях в Москве с сайта hh.ru
+        hh_msk_result = load_vacancy_from_hh_msk()
+
+        # Отправка администратору бота сообщение о сбое в работе
+        # при загрузки и сохранении данных о вакансиях в Москве
+        if not hh_msk_result.get('status'):
+            text = (
+                'При загрузке данных о вакансиях с сайта hh.ru в Москве в '
+                'таблицу vacancy_msk произошла ошибка.'
+            )
+            logger_load_msk_spb.info(text)
+            await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+        # Отправка сообщения администратору бота и логирование в случае,
+        # когда все данные о вакансиях в Москве были загружены и сохранены в БД
+        if hh_msk_result.get('status'):
+            text = (
+                'Данные о вакансиях в Москве успешно загружены с сайта hh.ru '
+                'и сохранены в таблице vacancy_msk. Всего сохранено: '
+                f'{hh_msk_result.get("count_vacancy_msk")} '
+            )
+            logger_load_msk_spb.info(text)
+            await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+        await asyncio.sleep(delay=5)
+        # загрузка и сохранение данных о вакансиях в
+        # Санкт-петербурге с сайта hh.ru
+        hh_spb_result = load_vacancy_from_hh_spb()
+
+        # Отправка администратору бота сообщение о сбое в работе
+        # при загрузки и сохранении данных о вакансиях в Санкт-Петербурге
+        if not hh_spb_result.get('status'):
+            text = (
+                'При загрузке данных о вакансиях с сайта hh.ru в '
+                'Санкт-Петербурге в таблицу vacancy_spb произошла ошибка.'
+            )
+            logger_load_msk_spb.info(text)
+            await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+        # Отправка сообщения администратору бота и логирование в случае,
+        # когда все данные о вакансиях в Санкт-Петербурге были
+        # загружены и сохранены в БД
+        if hh_spb_result.get('status'):
+            text = (
+                'Данные о вакансиях в Санкт-Петербурге успешно загружены '
+                'с сайта hh.ru и сохранены в таблице vacancy_spb. '
+                f'Всего сохранено: {hh_spb_result.get("count_vacancy_spb")} '
+            )
+            logger_load_msk_spb.info(text)
+            await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+        # загрузка и сохранение данных о вакансиях в Москве с сайта trudvsem.ru
+        trudvsem_msk_result = load_vacancy_from_trudvsem_msk()
+
+        # Отправка администратору бота сообщение о сбое в работе
+        # при загрузки и сохранении данных о вакансиях в Москве
+        if not trudvsem_msk_result.get('status'):
+            text = (
+                'При загрузке данных о вакансиях с сайта trudvsem.ru '
+                'в Москве в таблицу vacancy_msk произошла ошибка.'
+            )
+            logger_load_msk_spb.info(text)
+            await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+        # Отправка сообщения администратору бота и логирование в случае,
+        # когда все данные о вакансиях в Москве были загружены и сохранены в БД
+        if trudvsem_msk_result.get('status'):
+            text = (
+                'Данные о вакансиях в Москве успешно загружены с сайта '
+                'trudvsem.ru и сохранены в таблице vacancy_msk. Всего '
+                f'сохранено: {trudvsem_msk_result.get("count_vacancy_msk")} '
+            )
+            logger_load_msk_spb.info(text)
+            await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+        await asyncio.sleep(delay=5)
+        trudvsem_spb_result = load_vacancy_from_trudvsem_spb()
+
+        # Отправка администратору бота сообщение о сбое в работе
+        # при загрузки и сохранении данных о вакансиях в Санкт-Петербурге
+        if not trudvsem_spb_result.get('status'):
+            text = (
+                'При загрузке данных о вакансиях в с сайта trudvsem.ru '
+                'Санкт-Петербургев таблицу vacancy_spb произошла ошибка.'
+            )
+            logger_load_msk_spb.info(text)
+            await bot.send_message(chat_id=config.app.admin_user_id, text=text)
+
+        # Отправка сообщения администратору бота и логирование в случае,
+        # когда все данные о вакансиях в Санкт-Петербурге
+        # были загружены и сохранены в БД
+        if trudvsem_spb_result.get('status'):
+            text = (
+                'Данные о вакансиях в Санкт-Петербурге успешно загружены с '
+                'сайта trudvsem.ru и сохранены в таблице vacancy_spb. Всего '
+                f'сохранено: {trudvsem_spb_result.get("count_vacancy_spb")} '
+            )
+            logger_load_msk_spb.info(text)
+            await bot.send_message(chat_id=config.app.admin_user_id, text=text)
 
 
 async def loading_management_vacancies_user_location(

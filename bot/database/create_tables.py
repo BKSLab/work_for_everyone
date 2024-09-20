@@ -30,7 +30,7 @@ def create_tables_if_not_exists() -> dict:
             )
             text_msg = (
                 'Таблицы для моделей Region, Applicant, Vacancy, VacancyMSK, '
-                'VacancySPB,, Favorites успешно созданы в БД'
+                'VacancySPB, Favorites успешно созданы в БД'
             )
             logger_database.info(text_msg)
             return {'status': True, 'text_msg': text_msg}
@@ -41,11 +41,12 @@ def create_tables_if_not_exists() -> dict:
         logger_database.info(text_msg)
         return {'status': True, 'text_msg': text_msg}
     except PeeweeException as error:
-        logger_database.exception(
+        text_msg = (
             'При создании таблиц в БД произошла ошибка.'
             f'Текст ошибки: {error}. Тип ошибки: {type(error).__name__}.'
         )
-        return {'status': False, 'error': error.__str__()}
+        logger_database.exception(text_msg)
+        return {'status': False, 'error': text_msg}
     finally:
         if not db_work_for_everyone.is_closed():
             db_work_for_everyone.close()

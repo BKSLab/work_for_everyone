@@ -44,13 +44,13 @@ async def send_logs_to_admin(bot: Bot):
 
 async def main_administration(bot: Bot) -> None:
     """Главная функция для администрирования работы бота."""
-    lst_functions = [
+    lst_functions: list[dict] = [
         delete_all_vacansies_from_vacancy_table(),
         get_count_applicants(),
         get_count_favorites(),
     ]
-    for function in lst_functions:
-        query_result = function
+    for func in lst_functions:
+        query_result = func
         if not query_result.get('status'):
             text_msg = query_result.get('error')
             await bot.send_message(

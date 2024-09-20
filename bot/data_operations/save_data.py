@@ -21,7 +21,6 @@ def saving_region_data(data_region: list[dict[str, str]]) -> dict:
     try:
         if not db_work_for_everyone.is_connection_usable():
             db_work_for_everyone.connect()
-
         result = Region.insert_many(data_region).execute()
         return {'status': True, 'count_rows': len(result)}
     except PeeweeException as error:

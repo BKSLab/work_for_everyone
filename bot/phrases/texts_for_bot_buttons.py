@@ -73,3 +73,4 @@ class ButtonData:
         ('/feedback', 'Обратная связь'),
     )
     feedback: tuple[str, str] = ('Обратная связь', 'feedback_from_author')
+    support_project: tuple[str, str] = ('Поддержать проект', 'support_project')

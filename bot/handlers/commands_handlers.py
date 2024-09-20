@@ -35,7 +35,7 @@ async def start_command(message: Message, state: FSMContext):
             ButtonData.ready,
             ButtonData.bot_help,
             ButtonData.favorites,
-            ButtonData.feedback,
+            ButtonData.support_project,
         ],
         2,
     )
@@ -134,7 +134,6 @@ async def favorites_command(message: Message, state: FSMContext):
                         vacancy_id=vacancy.get('vacancy_id'),
                         company_code=vacancy.get('company_code'),
                     )
-                    result_loading = {'status': False}
                     # проверка актуальности вакансии после запроса
                     # к сайту Работа России
                     if (

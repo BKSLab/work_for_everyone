@@ -1,22 +1,24 @@
-from environs import Env
 from peewee import (
     AutoField,
     CharField,
     ForeignKeyField,
     Model,
     PostgresqlDatabase,
-    TextField
+    TextField,
 )
 
 
-env = Env()
-env.read_env()
+from config_data.config import load_config
+
+
+config = load_config()
+
 
 db_work_for_everyone = PostgresqlDatabase(
-    database=env('DB_NAME'),
-    host=env('DB_HOST'),
-    user=env('POSTGRES_USER'),
-    password=env('POSTGRES_PASSWORD'),
+    database=config.db.name,
+    host=config.db.host,
+    user=config.db.user,
+    password=config.db.password,
 )
 
 
@@ -44,8 +46,8 @@ class VacancyBaseModel(Model):
     class Meta:
         database = db_work_for_everyone
 
-    # def __str__(self) -> str:
-    #     return f'{self.vacancy_name} с id {self.vacancy_id}'
+    def __str__(self) -> str:
+        return f'{self.vacancy_name} с id {self.vacancy_id}'
 
 
 class Vacancy(VacancyBaseModel):
@@ -53,8 +55,8 @@ class Vacancy(VacancyBaseModel):
 
     applicant_tg_id = CharField(help_text='user id в Telegram')
 
-    # class Meta:
-    #     table_name = 'vacancy'
+    class Meta:
+        table_name = 'vacancy'
 
     def __str__(self) -> str:
         return f'{self.vacancy_name} с id {self.vacancy_id}'

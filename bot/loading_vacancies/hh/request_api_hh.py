@@ -1,6 +1,12 @@
+import asyncio
 import logging
 
+import aiohttp
 import requests
+
+from json import JSONDecodeError
+from http import HTTPStatus
+
 from config_data.config import load_config
 from loading_vacancies.endpoints import EndpointHH, ParameterRequestHH
 from loading_vacancies.hh.check_api_hh_responce import (
@@ -10,6 +16,74 @@ from loading_vacancies.hh.check_api_hh_responce import (
 
 logger_api_hh = logging.getLogger(__name__)
 config = load_config()
+
+
+async def request_to_api_hh_other_vacancies(
+    session: aiohttp.ClientSession,
+    reg_code_hh: int,
+    location: str,
+    page: int = 0,
+) -> dict:
+    """
+    Запрос к api hh.ru на получение данных о вакансиях
+    в пользовательской локации.
+    """
+    headers = {'Authorization': f'Bearer {config.app.access_token_hh}'}
+    payload = {
+        'page': page,
+        'per_page': ParameterRequestHH.VACANCIES_PER_ONE_PAGE_HH,
+        'area': reg_code_hh,
+        'text': location,
+        'label': ParameterRequestHH.SOCIAL_PROTECTED_HH,
+    }
+    try:
+        async with session.get(
+            EndpointHH.VACANCY_URL, headers=headers, params=payload
+        ) as api_response:
+            if api_response.status != HTTPStatus.OK:
+                logger_api_hh.critical(
+                    'При запросе к api сайта hh.ru для получения данных '
+                    'о вакансиях в пользовательской локации, получен код '
+                    f'не равный 200. Полученный код: {api_response.status}'
+                )
+                return {'status': False}
+            try:
+                api_response_dict = await api_response.json()
+                return {
+                    'status': True,
+                    'data': api_response_dict,
+                }
+            except JSONDecodeError as error:
+                logger_api_hh.critical(
+                    'При преобразовании полученного ответа от api hh.ru '
+                    f'при запросе данных о вакансиях в пользовательской '
+                    'локации в объект dict произошла ошибка. '
+                    f'Текст ошибки: {error}. '
+                    f'Тип ошибки: {type(error).__name__}.'
+                )
+                return {'status': False}
+    except aiohttp.ClientError as error:
+        logger_api_hh.exception(
+            'При запросе к api сайта hh.ru для получения данных о вакансиях '
+            f'в пользовательской локации ({location}), произошла ошибка. '
+            f'Текст ошибки: {error}. Тип ошибки: {type(error).__name__}.'
+        )
+        return {'status': False}
+    except asyncio.TimeoutError as error:
+        logger_api_hh.exception(
+            'Таймаут при запросе к API сайта hh.ru для получения данных '
+            f'о вакансиях в пользовательской локации ({location}). '
+            f'Текст ошибки: {error}, Тип ошибки: {type(error).__name__}.'
+        )
+        return {'status': False}
+    except Exception as error:
+        logger_api_hh.exception(
+            'При работе функции request_to_api_hh_other_vacancies произошла '
+            'ошибка. Функция получила на вход следующие аргументы: '
+            f'Локация: {location}, код региона: {str(reg_code_hh)}. '
+            f'Текст ошибки: {error}. Тип ошибки: {type(error).__name__}.'
+        )
+        return {'status': False}
 
 
 def request_to_api_hh_one_vacancy(vacancy_id: str) -> dict:
@@ -115,58 +189,6 @@ def request_to_api_hh_msk_spb(
     }
 
 
-def request_to_api_hh_other_vacancies(
-    reg_code_hh: int,
-    location: str,
-    page: int = 0,
-) -> dict:
-    """
-    Запрос к api hh.ru на получение данных о вакансиях
-    в пользовательской локации.
-    """
-    headers = {'Authorization': f'Bearer {config.app.access_token_hh}'}
-    payload = {
-        'page': page,
-        'per_page': ParameterRequestHH.VACANCIES_PER_ONE_PAGE_HH,
-        'area': reg_code_hh,
-        'text': location,
-        'label': ParameterRequestHH.SOCIAL_PROTECTED_HH,
-    }
-    try:
-        api_response = requests.get(
-            EndpointHH.VACANCY_URL, headers=headers, params=payload
-        )
-    except requests.exceptions as error:
-        logger_api_hh.exception(
-            'При запросе к api сайта hh.ru для получения данных о вакансиях '
-            f'в пользовательской локации ({location}), произошла ошибка. '
-            f'Текст ошибки: {error}. Тип ошибки: {type(error).__name__}.'
-        )
-        return {'status': False}
-    if api_response.status_code != requests.codes.ok:
-        logger_api_hh.critical(
-            'При запросе к api сайта hh.ru для получения данных о вакансиях '
-            f'в пользовательской локации, получен код '
-            f'не равный 200. Полученный код: {api_response.status_code}'
-        )
-        return {'status': False}
-    # Контроль преобразования полученного ответа в объект ссловаря
-    try:
-        api_response_dict = api_response.json()
-    except requests.exceptions.JSONDecodeError as error:
-        logger_api_hh.exception(
-            'При преобразовании полученного ответа от api hh.ru '
-            f'при запросе данных о вакансиях в пользовательской локации '
-            f'в объект dict произошла ошибка. '
-            f'Текст ошибки: {error}. Тип ошибки: {type(error).__name__}.'
-        )
-        return {'status': False}
-    return {
-        'status': True,
-        'data': api_response_dict,
-    }
-
-
 def get_one_vacancy_hh(vacancy_id: str) -> dict:
     """
     Получение данных об одной вакансии от api hh.ru.
@@ -260,30 +282,33 @@ def get_vacancies_hh_msk_spb(
     return {'status': True, 'vacancy_lst': vacancy_lst}
 
 
-def get_vacancies_api_hh_user_location(
-    reg_code_hh: str, user_location: str
+async def get_vacancies_api_hh_user_location(
+    session: aiohttp.ClientSession,
+    reg_code_hh: str,
+    user_location: str
 ) -> dict:
     """
     Получение и обработка данных в пользовательской локации от api hh.ru.
     """
-    api_responce = request_to_api_hh_other_vacancies(
+    api_response = await request_to_api_hh_other_vacancies(
+        session=session,
         reg_code_hh=reg_code_hh,
         location=user_location,
     )
 
-    if not api_responce.get('status'):
+    if not api_response.get('status'):
         return {'status': False}
 
     check_result = check_responce_api_hh_vacancies(
-        response_data=api_responce.get('data')
+        response_data=api_response.get('data')
     )
     if not check_result.get('status'):
         return {'status': False}
 
     # Получение количества страниц с вакансиями
-    pages = api_responce.get('data').get('pages')
+    pages = api_response.get('data').get('pages')
 
-    # проверка не является ли значение пустым
+    # Проверка на пустое значение
     if not pages:
         logger_api_hh.critical(
             'При первом запросе к api hh.ru на получение вакансий '
@@ -294,26 +319,41 @@ def get_vacancies_api_hh_user_location(
 
     # Список для добавления информации о вакансиях
     vacancy_lst = []
-    for page in range(pages):
-        api_responce = request_to_api_hh_other_vacancies(
-            reg_code_hh=reg_code_hh,
-            location=user_location,
-            page=page,
-        )
-        if not api_responce.get('status'):
+
+    # Создаем семафор для ограничения количества одновременных запросов
+    semaphore = asyncio.Semaphore(5)
+
+    # Функция для выполнения запроса с семафором
+    async def fetch_page(page):
+        async with semaphore:
+            await asyncio.sleep(0.1)
+            return await request_to_api_hh_other_vacancies(
+                session=session,
+                reg_code_hh=reg_code_hh,
+                location=user_location,
+                page=page
+            )
+
+    # Асинхронный сбор всех запросов для получения вакансий на всех страницах
+    tasks = [fetch_page(page) for page in range(pages)]
+    responses = await asyncio.gather(*tasks)
+
+    # Обработка полученных данных
+    for api_response in responses:
+        if not api_response.get('status'):
             return {'status': False}
 
-        # Если ошибок при обращении к api сайта hh.ru не возникло,
-        # полученные данные направляются на проверку их соответствия
+        # Проверка корректности данных от API
         check_result = check_responce_api_hh_vacancies(
-            response_data=api_responce.get('data')
+            response_data=api_response.get('data')
         )
         if not check_result.get('status'):
             return {'status': False}
 
-        # Получение списка вакансий на соответствующей страницы
-        items = api_responce.get('data').get('items')
+        # Получение списка вакансий на соответствующей странице
+        items = api_response.get('data').get('items')
 
         # Добавление вакансий в список
-        [vacancy_lst.append(vacancy_data) for vacancy_data in items]
+        vacancy_lst.extend(items)
+
     return {'status': True, 'vacancy_lst': vacancy_lst}

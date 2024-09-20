@@ -1,13 +1,18 @@
 import logging
 
-from database.models import Favorites, Region, db_work_for_everyone
+from database.models import (
+    Favorites,
+    Region,
+    VacancyMSK,
+    VacancySPB,
+    db_work_for_everyone
+)
 from peewee import PeeweeException
 
 
 logger_data_operations = logging.getLogger(__name__)
 
 
-# ошибки остаются
 def region_data_exists() -> dict:
     """Функция проверки наличия данных о регионах в таблице region."""
     try:
@@ -58,6 +63,44 @@ def check_vacancy_favorites_exists(
             f'Тип ошибки: {type(error).__name__}.'
         )
         return {'status': False}
+    finally:
+        if not db_work_for_everyone.is_closed():
+            db_work_for_everyone.close()
+
+
+def check_vacancy_msk_spb_exists() -> dict:
+    """
+    Функция проверки наличия данных о загруженных вакансиях
+    в Москве и Санкт-Петербурге на момент старта бота в БД.
+    """
+    try:
+        if not db_work_for_everyone.is_connection_usable():
+            db_work_for_everyone.connect()
+
+        query_result_msk = VacancyMSK.get_or_none()
+        query_result_spb = VacancySPB.get_or_none()
+
+        if query_result_msk and query_result_spb:
+            text_msg = (
+                'Вакансии в Москве и Санкт-Петербурге при старте бота '
+                'уже загружены в БД.'
+            )
+            logger_data_operations.info(text_msg)
+            return {'status': True, 'data_exists': True, 'text_msg': text_msg}
+        text_msg = (
+            'Вакансии в Москве и Санкт-Петербурге при старте бота '
+            'отсутствуют. Требуется их загрузка для нормальной работы бота.'
+        )
+        logger_data_operations.info(text_msg)
+        return {'status': True, 'data_exists': False, 'text_msg': text_msg}
+    except PeeweeException as error:
+        text_error = (
+            'При обращении к таблице с вакансиям в Москве и Санкт-Петербурге '
+            f'произошла ошибка. Текст ошибки: {error}. '
+            f'Тип ошибки: {type(error).__name__}.'
+        )
+        logger_data_operations.exception(text_error)
+        return {'status': False, 'error': text_error}
     finally:
         if not db_work_for_everyone.is_closed():
             db_work_for_everyone.close()

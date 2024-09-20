@@ -926,6 +926,7 @@ async def handle_delete_vacancy_from_favorites_button(
 
 
 @router.callback_query(F.data == ButtonData.feedback[1])
+@router.callback_query(F.data == ButtonData.support_project[1])
 async def handle_feedback_button(callback: CallbackQuery):
     """Хендлер, отвечающий за нажатие кнопки 'Обратная связь'."""
     await callback.answer()
