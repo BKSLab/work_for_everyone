@@ -321,7 +321,7 @@ async def get_vacancies_api_hh_user_location(
     vacancy_lst = []
 
     # Создаем семафор для ограничения количества одновременных запросов
-    semaphore = asyncio.Semaphore(5)
+    semaphore = asyncio.Semaphore(3)
 
     # Функция для выполнения запроса с семафором
     async def fetch_page(page):

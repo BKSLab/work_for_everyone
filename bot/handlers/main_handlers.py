@@ -135,7 +135,7 @@ async def handle_region_name_button(
     в федеральном округе.
     """
     await callback.answer()
-    await state.update_data(region_code=int(callback.data))
+    await state.update_data(region_code=callback.data)
     await state.update_data(region_name=region_name)
     if callback.data in ['92']:
         await state.update_data(location=region_name)

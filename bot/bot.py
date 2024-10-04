@@ -73,12 +73,12 @@ def setup_scheduler(bot: Bot) -> None:
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
         main_administration,
-        CronTrigger(day_of_week='*', minute=58),
+        CronTrigger(day_of_week='*', hour=0, minute=5),
         args=(bot,),
     )
     scheduler.add_job(
         loading_management_vacancies_msk_spb,
-        CronTrigger(day_of_week='*', minute=52),
+        CronTrigger(day_of_week='*', hour=0),
         args=(bot,),
     )
     scheduler.start()
